@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1065992963804",
+    "project_id": "chat-vibe-5c851",
+    "storage_bucket": "chat-vibe-5c851.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1065992963804:android:2931bbcf50b7b277fcd619",
+        "android_client_info": {
+          "package_name": "com.example.chatvibe"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1065992963804-d6feidjoibo9650u3npn1srokfhfobq5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.chatvibe",
+            "certificate_hash": "b27620c1e805338739c1f8630fea4cd8a87f482b"
+          }
+        },
+        {
+          "client_id": "1065992963804-eo74a80kphtdpkg1m0jamcv8v0t9b8kq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCkKs6TCyPd3Z6kTZfAoTxgQPNKXx_CAZk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1065992963804-eo74a80kphtdpkg1m0jamcv8v0t9b8kq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
