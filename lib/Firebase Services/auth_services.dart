@@ -54,7 +54,7 @@ class AuthServices {
     }
   }
 
-  Future<bool> isUsernameAvailable(String username) async {
+  static Future<bool> isUsernameAvailable(String username) async {
     final QuerySnapshot result = await FirebaseFirestore.instance
         .collection('users')
         .where('username', isEqualTo: username)

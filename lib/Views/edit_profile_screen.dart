@@ -1,9 +1,16 @@
+import 'dart:io';
+
+import 'package:chatvibe/Firebase%20Services/auth_services.dart';
 import 'package:chatvibe/Firebase%20Services/update_profile_services.dart';
 import 'package:chatvibe/Views/CommonWidget/common_button.dart';
 import 'package:chatvibe/Views/CommonWidget/common_textformfield.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:sizer/sizer.dart';
 
 import '../Controllers/profile_data_controller.dart';
@@ -18,6 +25,8 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   ProfileDataController profileDataController = Get.find();
+  final box = GetStorage();
+  FirebaseStorage storage = FirebaseStorage.instance;
   UpdateProfileServices updateProfileServices = UpdateProfileServices();
   TextEditingController userNameController = TextEditingController();
   TextEditingController fullNameController = TextEditingController();
@@ -30,6 +39,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     emailController.text = profileDataController.profileData['email'];
     fullNameController.text = profileDataController.profileData['fullname'];
   }
+
+  ImagePicker picker = ImagePicker();
+  File? profileimage;
 
   @override
   Widget build(BuildContext context) {
@@ -52,17 +64,32 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   height: 2.h,
                 ),
                 Center(
-                  child: Container(
+                  child: InkResponse(
+                    onTap: () async {
+                      XFile? file =
+                          await picker.pickImage(source: ImageSource.gallery);
+                      profileimage = File(file!.path);
+                      setState(() {});
+                      print(file!.path);
+                    },
+                    child: Container(
                       width: 30.w,
                       height: 14.h,
-                      decoration: const BoxDecoration(
-                          image: DecorationImage(
-                              image: AssetImage(
-                                "asset/images/profile.jpg",
-                              ),
-                              fit: BoxFit.fitHeight),
-                          shape: BoxShape.circle,
-                          color: Colors.green)),
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: profileDataController.profileData["profile"] !=
+                                  ""
+                              ? NetworkImage(
+                                  profileDataController.profileData["profile"])
+                              : profileimage == null
+                                  ? const AssetImage("asset/images/profile.jpg")
+                                  : FileImage(profileimage!) as ImageProvider,
+                          fit: BoxFit.cover,
+                        ),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
                 ),
                 SizedBox(
                   height: 7.h,
@@ -118,7 +145,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 Center(
                   child: CommonButton(
                     text: "Submit",
-                    onPressed: () {
+                    onPressed: () async {
+                      String profileUrl = "";
+                      if (profileimage != null) {
+                        await storage
+                            .ref("Profile/${box.read("uId")}.png")
+                            .putFile(profileimage!)
+                            .then(
+                          (p0) async {
+                            profileUrl = await p0.ref.getDownloadURL();
+                            await FirebaseFirestore.instance
+                                .collection("users")
+                                .doc(box.read("uId"))
+                                .update({"profile": profileUrl});
+                          },
+                        );
+                      }
+
                       updateProfileServices.updateData(
                           email: emailController.text.trim(),
                           username: userNameController.text.trim(),

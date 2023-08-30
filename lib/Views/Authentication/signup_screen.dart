@@ -163,8 +163,8 @@ class _SignupScreenState extends State<SignupScreen> {
                   text: "Sign Up",
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
-                      bool available = await authServices
-                          .isUsernameAvailable(userNameController.text);
+                      bool available = await AuthServices.isUsernameAvailable(
+                          userNameController.text);
 
                       if (available) {
                         // Validation successful, proceed with sign-up logic

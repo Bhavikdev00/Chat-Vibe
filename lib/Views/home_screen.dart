@@ -1,5 +1,7 @@
+import 'package:chatvibe/Controllers/Friends_data_controller.dart';
+import 'package:chatvibe/Controllers/profile_data_controller.dart';
 import 'package:chatvibe/Firebase%20Services/chat_services.dart';
-import 'package:chatvibe/Views/chat_screen.dart';
+import 'package:chatvibe/Views/Chat%20Screen/chat_screen.dart';
 import 'package:chatvibe/Views/notification_screen.dart';
 import 'package:chatvibe/Views/profile_screen.dart';
 import 'package:chatvibe/Views/search_screen.dart';
@@ -16,7 +18,11 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
+  ProfileDataController profileDataController =
+      Get.put(ProfileDataController());
+  FriendsDataController friendsDataController =
+      Get.put(FriendsDataController());
   CollectionReference chatRoom =
       FirebaseFirestore.instance.collection("chatRoom");
   final box = GetStorage();
@@ -27,10 +33,33 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     friends = FirebaseFirestore.instance
         .collection("users")
         .doc(box.read("uId"))
         .collection("friends");
+    friendsDataController.getFriendsData();
+    profileDataController.getProfileData();
+    _chatServices.setStatus("online");
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // online
+      _chatServices.setStatus("Online");
+      print("---------------->>>>>>>");
+    } else {
+      // offline
+      _chatServices.setStatus("Offline");
+    }
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    WidgetsBinding.instance.removeObserver(this);
   }
 
   @override
@@ -78,76 +107,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 image: AssetImage(
                                   "asset/images/profile.jpg",
                                 ),
-                                fit: BoxFit.fitHeight),
+                                fit: BoxFit.cover),
                             shape: BoxShape.circle,
                             color: Colors.green)),
-                  ),
-                  // InkResponse(
-                  //   onTap: () {
-                  //     // Open Menu
-                  //   },
-                  //   child: PopupMenuButton<String>(
-                  //     color: const Color(0xff444966),
-                  //     splashRadius: 0,
-                  //     elevation: 0,
-                  //     onSelected: (value) {
-                  //       // Handle menu item selection
-                  //       if (value == 'settings') {
-                  //         // Handle Settings action
-                  //       } else if (value == 'profiles') {
-                  //         // Handle Profiles action
-                  //       } else if (value == 'notifications') {
-                  //         // Handle Notifications action
-                  //         Get.to(() => const FriendRequestsScreen());
-                  //       }
-                  //     },
-                  //     itemBuilder: (BuildContext context) =>
-                  //         <PopupMenuEntry<String>>[
-                  //       PopupMenuItem<String>(
-                  //         value: 'settings',
-                  //         child: ListTile(
-                  //           title: Text(
-                  //             'Settings',
-                  //             style: TextStyle(
-                  //                 color: Colors.white, fontSize: 12.sp),
-                  //           ),
-                  //           leading:
-                  //               const Icon(Icons.settings, color: Colors.white),
-                  //         ),
-                  //       ),
-                  //       PopupMenuItem<String>(
-                  //         value: 'profiles',
-                  //         child: ListTile(
-                  //           title: Text(
-                  //             'Profiles',
-                  //             style: TextStyle(
-                  //                 color: Colors.white, fontSize: 12.sp),
-                  //           ),
-                  //           leading:
-                  //               const Icon(Icons.person, color: Colors.white),
-                  //         ),
-                  //       ),
-                  //       PopupMenuItem<String>(
-                  //         value: 'notifications',
-                  //         child: ListTile(
-                  //           title: Text(
-                  //             'Notifications',
-                  //             style: TextStyle(
-                  //                 color: Colors.white, fontSize: 12.sp),
-                  //           ),
-                  //           leading: const Icon(Icons.notifications,
-                  //               color: Colors.white),
-                  //         ),
-                  //       ),
-                  //       // You can add more menu items here
-                  //     ],
-                  //     child: Icon(
-                  //       Icons.more_vert,
-                  //       size: 3.5.h,
-                  //       color: Colors.white,
-                  //     ),
-                  //   ),
-                  // ),
+                  )
                 ],
               ),
             ),
@@ -182,82 +145,68 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 5.w),
-                  child: FutureBuilder(
-                    future: friends!.get(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done) {
-                        final friendsList = snapshot.data!.docs;
-                        return ListView.builder(
-                          itemCount: friendsList.length,
-                          shrinkWrap: true,
-                          itemBuilder: (context, index) {
-                            final frd = friendsList[index];
+                    padding: EdgeInsets.symmetric(horizontal: 5.w),
+                    child: GetBuilder<FriendsDataController>(
+                      builder: (controller) {
+                        return controller.isloading
+                            ? const Center(
+                                child: CircularProgressIndicator(),
+                              )
+                            : ListView.builder(
+                                itemCount: controller.friendDataList.length,
+                                shrinkWrap: true,
+                                itemBuilder: (context, index) {
+                                  final frd = controller.friendDataList[index];
+                                  return ListTile(
+                                    onTap: () async {
+                                      Map result =
+                                          await _chatServices.isChatRoomExist(
+                                              "${box.read("uId")}", frd["uId"]);
+                                      if (!result['isExist']) {
+                                        await chatRoom
+                                            .doc(
+                                                "${box.read("uId")}-${frd["uId"]}")
+                                            .set({
+                                          "firstUid": box.read("uId"),
+                                          "secondUid": frd["uId"],
+                                        });
+                                      }
 
-                            return ListTile(
-                              onTap: () async {
-                                Map result =
-                                    await _chatServices.isChatRoomExist(
-                                        "${box.read("uId")}", frd["friendUid"]);
-                                if (!result['isExist']) {
-                                  await chatRoom
-                                      .doc(
-                                          "${box.read("uId")}-${frd["friendUid"]}")
-                                      .set({
-                                    "firstUid": box.read("uId"),
-                                    "secondUid": frd["friendUid"],
-                                  });
-                                }
-                                print(result);
+                                      Get.to(() => ChatScreen(
+                                            frdUId: frd["uId"],
+                                            frdUserName: frd["username"],
+                                            roomId: result['isExist'] == true
+                                                ? result['chatRoomId']
+                                                : "${box.read("uId")}-${frd["uId"]}",
+                                          ));
 
-                                Get.to(() => ChatScreen(
-                                      frdUserName: frd["username"],
-                                      roomId: result['isExist'] == true
-                                          ? result['chatRoomId']
-                                          : "${box.read("uId")}-${frd["friendUid"]}",
-                                    ));
-
-                                // print(result);
-                              },
-                              leading: CircleAvatar(radius: 3.5.h),
-                              contentPadding:
-                                  EdgeInsets.only(left: 2.w, top: 2.5.h),
-                              title: Text(
-                                "${frd['username']}",
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 13.sp),
-                              ),
-                              subtitle: Text(
-                                "Hy",
-                                style: TextStyle(
-                                    color: Colors.white54, fontSize: 11.sp),
-                              ),
-                            );
-                          },
-                        );
-                      } else {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-
-                      // if (!snapshot.hasData) {
-                      //   return const Center(
-                      //     child: Text("No Data Found"),
-                      //   );
-                      // }
-
-                      // if (friendsList.isEmpty) {
-                      //   return const Center(
-                      //     child: Text(
-                      //       'You have no friends yet.',
-                      //       style: TextStyle(color: Colors.white),
-                      //     ),
-                      //   );
-                      // }
-                    },
-                  ),
-                ),
+                                      // print(result);
+                                    },
+                                    leading: CircleAvatar(
+                                        radius: 3.5.h,
+                                        backgroundImage: frd['profile'] != ""
+                                            ? NetworkImage("${frd['profile']}")
+                                            : const AssetImage(
+                                                    "asset/images/profile.jpg")
+                                                as ImageProvider),
+                                    contentPadding:
+                                        EdgeInsets.only(left: 2.w, top: 2.5.h),
+                                    title: Text(
+                                      "${frd['username']}",
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 13.sp),
+                                    ),
+                                    subtitle: Text(
+                                      "Hy",
+                                      style: TextStyle(
+                                          color: Colors.white54,
+                                          fontSize: 11.sp),
+                                    ),
+                                  );
+                                },
+                              );
+                      },
+                    )),
               ),
             )
           ],

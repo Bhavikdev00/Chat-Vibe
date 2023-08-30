@@ -38,8 +38,6 @@ class ProfileDataController extends GetxController {
       Map dd = element.data();
       friendRequests.add(dd);
     });
-    print(profileData);
-    print(friendsData);
     b = false;
     update();
   }

@@ -1,7 +1,6 @@
 import 'package:chatvibe/Controllers/profile_data_controller.dart';
 import 'package:chatvibe/Views/CommonWidget/error_message.dart';
 import 'package:chatvibe/Views/home_screen.dart';
-import 'package:chatvibe/Views/profile_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +8,8 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:sizer/sizer.dart';
+
+import 'auth_services.dart';
 
 class UpdateProfileServices {
   final box = GetStorage();
@@ -51,16 +52,28 @@ class UpdateProfileServices {
                           email: email!, password: password)
                       .then(
                     (value) async {
-                      await FirebaseFirestore.instance
-                          .collection("users")
-                          .doc(box.read("uId"))
-                          .update({
-                        "username": username,
-                        "email": value.user!.email,
-                        "fullname": fullname
-                      });
+                      if (profileDataController.profileData['username'] !=
+                          username) {
+                        bool isavailable =
+                            await AuthServices.isUsernameAvailable(username);
+
+                        if (isavailable == true) {
+                          await FirebaseFirestore.instance
+                              .collection("users")
+                              .doc(box.read("uId"))
+                              .update(
+                                  {"username": username, "fullname": fullname});
+                        } else {
+                          errorMessageShow(
+                              errorMessage: 'Username not available');
+                        }
+                      } else {
+                        await FirebaseFirestore.instance
+                            .collection("users")
+                            .doc(box.read("uId"))
+                            .update({"fullname": fullname});
+                      }
                       Get.offAll(() => const HomeScreen());
-                      profileDataController.getProfileData();
                     },
                   );
                 },
@@ -72,11 +85,25 @@ class UpdateProfileServices {
 
         await FirebaseAuth.instance.currentUser!.updateEmail(email);
       } else {
-        await FirebaseFirestore.instance
-            .collection("users")
-            .doc(box.read("uId"))
-            .update({"username": username, "fullname": fullname});
-        Get.offAll(() => const HomeScreen());
+        if (profileDataController.profileData['username'] != username) {
+          bool isavailable = await AuthServices.isUsernameAvailable(username);
+
+          if (isavailable == true) {
+            await FirebaseFirestore.instance
+                .collection("users")
+                .doc(box.read("uId"))
+                .update({"username": username, "fullname": fullname});
+            Get.offAll(() => const HomeScreen());
+          } else {
+            errorMessageShow(errorMessage: 'Username not available');
+          }
+        } else {
+          await FirebaseFirestore.instance
+              .collection("users")
+              .doc(box.read("uId"))
+              .update({"fullname": fullname});
+          Get.offAll(() => const HomeScreen());
+        }
       }
     } on FirebaseAuthException catch (e) {
       print("Error :- $e");

@@ -18,13 +18,10 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  ProfileDataController profileDataController =
-      Get.put(ProfileDataController());
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    profileDataController.getProfileData();
   }
 
   @override
@@ -250,13 +247,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   right: 0,
                                   top: -7.h,
                                   child: Container(
-                                      width: 10.w,
+                                      width: 30.w,
                                       height: 14.h,
-                                      decoration: const BoxDecoration(
+                                      decoration: BoxDecoration(
                                           image: DecorationImage(
-                                              image: AssetImage(
-                                                "asset/images/profile.jpg",
-                                              ),
+                                              image: controller.profileData[
+                                                          "profile"] !=
+                                                      ""
+                                                  ? NetworkImage(controller
+                                                      .profileData["profile"])
+                                                  : const AssetImage(
+                                                      "asset/images/profile.jpg",
+                                                    ) as ImageProvider,
                                               fit: BoxFit.cover),
                                           shape: BoxShape.circle,
                                           color: Colors.green)),

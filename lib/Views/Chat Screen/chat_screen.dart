@@ -1,4 +1,5 @@
 import 'package:chatvibe/Firebase%20Services/chat_services.dart';
+import 'package:chatvibe/Views/Chat%20Screen/Widget/msg_container.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -8,8 +9,12 @@ import 'package:sizer/sizer.dart';
 class ChatScreen extends StatefulWidget {
   final String roomId;
   final String frdUserName;
+  final String frdUId;
   const ChatScreen(
-      {super.key, required this.roomId, required this.frdUserName});
+      {super.key,
+      required this.roomId,
+      required this.frdUserName,
+      required this.frdUId});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -24,7 +29,34 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xff1B202D),
-      appBar: AppBar(title: Text(widget.frdUserName)),
+      appBar: AppBar(
+          title: StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection("users")
+            .doc(widget.frdUId)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            Map data = snapshot.data!.data() as Map;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(widget.frdUserName),
+                SizedBox(
+                  height: 0.2.h,
+                ),
+                Text(
+                  data['status'],
+                  style: TextStyle(
+                      fontSize: 10.sp, color: Colors.white, letterSpacing: 0.5),
+                )
+              ],
+            );
+          } else {
+            return Text(widget.frdUserName);
+          }
+        },
+      )),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 2.w),
         child: Column(
@@ -45,6 +77,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 }
 
                 List chatDocuments = snapshot.data!.docs;
+                List<String> chatDocumentsId =
+                    snapshot.data!.docs.map((e) => e.id).toList();
                 return ListView.builder(
                   itemCount: chatDocuments.length,
                   itemBuilder: (context, index) {
@@ -54,51 +88,41 @@ class _ChatScreenState extends State<ChatScreen> {
                     if (chat["senderId"] == box.read("uId")) {
                       isMe = true;
                     }
-                    return Column(
-                      crossAxisAlignment: isMe
-                          ? CrossAxisAlignment.end
-                          : CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 5),
-                          child: GestureDetector(
-                            onLongPress: () {
-                              //To do show popuo here under msg
+                    return isMe
+                        ? Dismissible(
+                            key: UniqueKey(),
+                            onDismissed: (direction) async {
+                              FirebaseFirestore.instance
+                                  .collection("chatRoom")
+                                  .doc(widget.roomId)
+                                  .collection("chats")
+                                  .doc(chatDocumentsId[index])
+                                  .delete();
                             },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  color: isMe
-                                      ? const Color(0xff7A8194)
-                                      : const Color(0xff373E4E),
-                                  borderRadius: BorderRadius.circular(15)),
-                              child: Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 3.w, vertical: 1.5.h),
-                                  child: Text(
-                                    "${chat["msg"]}",
-                                    style: const TextStyle(color: Colors.white),
-                                  )),
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
+                            child: MsgContainer(
+                                isMe: isMe, msg: chat["msg"].toString()),
+                          )
+                        : MsgContainer(isMe: isMe, msg: chat["msg"].toString());
                   },
                 );
               },
             )),
             TextField(
               controller: _messageController,
+              onSubmitted: (value) {
+                chatServices.sendChat(
+                    roomId: widget.roomId,
+                    message: _messageController.text.trim());
+                _messageController.clear();
+              },
               style: TextStyle(color: Colors.white, fontSize: 12.sp),
               decoration: InputDecoration(
                   suffixIcon: IconButton(
                       onPressed: () async {
-                        await chatServices
-                            .sendChat(
-                                roomId: widget.roomId,
-                                message: _messageController.text.trim())
-                            .then((value) => printError(info: "Message Sent"));
+                        await chatServices.sendChat(
+                            roomId: widget.roomId,
+                            message: _messageController.text.trim());
+                        _messageController.clear();
                       },
                       icon: const Icon(
                         Icons.send,

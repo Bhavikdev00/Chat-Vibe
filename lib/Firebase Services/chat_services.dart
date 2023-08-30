@@ -30,4 +30,11 @@ class ChatServices {
       "senderId": box.read("uId")
     });
   }
+
+  void setStatus(String status) async {
+    await FirebaseFirestore.instance
+        .collection("users")
+        .doc("${box.read("uId")}")
+        .update({"status": status});
+  }
 }

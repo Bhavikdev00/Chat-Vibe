@@ -1,6 +1,6 @@
 import 'package:chatvibe/Views/Authentication/signin_screen.dart';
 import 'package:chatvibe/Views/Authentication/signup_screen.dart';
-import 'package:chatvibe/Views/chat_screen.dart';
+import 'package:chatvibe/Views/Chat%20Screen/chat_screen.dart';
 import 'package:chatvibe/Views/home_screen.dart';
 
 import 'package:chatvibe/Views/profile_screen.dart';
