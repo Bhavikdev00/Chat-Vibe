@@ -23,6 +23,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       Get.put(ProfileDataController());
   FriendsDataController friendsDataController =
       Get.put(FriendsDataController());
+
   CollectionReference chatRoom =
       FirebaseFirestore.instance.collection("chatRoom");
   final box = GetStorage();
