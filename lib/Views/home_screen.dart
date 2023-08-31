@@ -11,6 +11,8 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:sizer/sizer.dart';
 
+import '../Controllers/online_friends_data_controller.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -23,11 +25,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       Get.put(ProfileDataController());
   FriendsDataController friendsDataController =
       Get.put(FriendsDataController());
+  final OnlineFrdDataController _onlineFrdDataController =
+      Get.put(OnlineFrdDataController());
 
   CollectionReference chatRoom =
       FirebaseFirestore.instance.collection("chatRoom");
   final box = GetStorage();
-  ChatServices _chatServices = ChatServices();
+  final ChatServices _chatServices = ChatServices();
   CollectionReference? friends;
 
   @override
@@ -39,9 +43,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         .collection("users")
         .doc(box.read("uId"))
         .collection("friends");
+    _onlineFrdDataController.getData();
     friendsDataController.getFriendsData();
     profileDataController.getProfileData();
-    _chatServices.setStatus("online");
+    _chatServices.setStatus("Online");
   }
 
   @override
@@ -119,23 +124,58 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               height: 3.h,
             ),
             SizedBox(
-              height: 10.h,
+              height: 11.h,
               width: double.infinity,
-              child: ListView.builder(
-                itemCount: 10,
-                scrollDirection: Axis.horizontal,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 2.w),
-                    child: CircleAvatar(
-                      radius: 9.5.w,
-                    ),
+              child: GetBuilder<OnlineFrdDataController>(
+                builder: (controller) {
+                  return ListView.builder(
+                    itemCount: controller.onlineFrdData.length,
+                    scrollDirection: Axis.horizontal,
+                    itemBuilder: (context, index) {
+                      Map onrFrd = controller.onlineFrdData[index];
+                      return Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 2.w),
+                        child: Column(
+                          children: [
+                            CircleAvatar(
+                              radius: 9.5.w,
+                              child: Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  CircleAvatar(
+                                    radius: 9.5.w,
+                                    backgroundImage: onrFrd["profile"] != null
+                                        ? NetworkImage(
+                                            onrFrd["profile"].toString())
+                                        : const AssetImage(
+                                                "asset/images/profile.jpg")
+                                            as ImageProvider,
+                                  ),
+                                  Positioned(
+                                    bottom: 3,
+                                    right: 3,
+                                    child: CircleAvatar(
+                                      backgroundColor: Colors.green,
+                                      radius: 7,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Text(
+                              "${onrFrd['username']}",
+                              style: TextStyle(color: Colors.white),
+                            )
+                          ],
+                        ),
+                      );
+                    },
                   );
                 },
               ),
             ),
             SizedBox(
-              height: 3.h,
+              height: 2.h,
             ),
             Expanded(
               child: Container(
