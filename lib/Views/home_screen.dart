@@ -153,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                           controller.friendDataList[index];
                                       return ListTile(
                                         onTap: () async {
-                                          Map result = await _chatServices
+                                          Map result = await ChatServices
                                               .isChatRoomExist(
                                                   "${box.read("uId")}",
                                                   frd["uId"]);

@@ -3,10 +3,10 @@ import 'package:get_storage/get_storage.dart';
 
 class ChatServices {
   final box = GetStorage();
-  CollectionReference chatRoom =
+  static CollectionReference chatRoom =
       FirebaseFirestore.instance.collection("chatRoom");
 
-  Future isChatRoomExist(String id1, String id2) async {
+  static Future isChatRoomExist(String id1, String id2) async {
     var room1 = await chatRoom.doc("$id1-$id2").get();
     var room2 = await chatRoom.doc("$id2-$id1").get();
 

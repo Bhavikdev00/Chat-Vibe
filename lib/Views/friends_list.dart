@@ -1,5 +1,7 @@
 import 'package:chatvibe/Controllers/Friends_data_controller.dart';
 import 'package:chatvibe/Controllers/profile_data_controller.dart';
+import 'package:chatvibe/Firebase%20Services/friend_request_services.dart';
+import 'package:chatvibe/Views/notification_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
@@ -37,9 +39,14 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                             itemBuilder: (context, index) {
                               Map<String, dynamic> data =
                                   controller.friendDataList[index];
-                              print("Bhavik ====>>> $data");
                               return ListTile(
-                                leading: CircleAvatar(radius: 3.5.h),
+                                leading: CircleAvatar(
+                                    radius: 3.5.h,
+                                    backgroundImage: data['profile'] != ""
+                                        ? NetworkImage(data["profile"])
+                                        : const AssetImage(
+                                            "asset/images/profile.jpg",
+                                          ) as ImageProvider),
                                 contentPadding:
                                     EdgeInsets.only(left: 2.w, top: 2.5.h),
                                 title: Text(
@@ -47,13 +54,13 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                                   style: TextStyle(
                                       color: Colors.white, fontSize: 13.sp),
                                 ),
-                                trailing: InkResponse(
-                                  onTap: () {},
-                                  child: const Icon(
-                                    Icons.delete_rounded,
-                                    color: Colors.white,
-                                  ),
-                                ),
+                                // trailing: InkResponse(
+                                //   onTap: () {},
+                                //   child: const Icon(
+                                //     Icons.delete_rounded,
+                                //     color: Colors.white,
+                                //   ),
+                                // ),
                               );
                             },
                           ),

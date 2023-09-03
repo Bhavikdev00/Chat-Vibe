@@ -36,7 +36,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         padding: EdgeInsets.symmetric(horizontal: 2.w),
         child: SafeArea(
           child: GetBuilder<ProfileDataController>(
-            builder: (controller) => controller.b == true
+            builder: (controller) => controller.isLoading == true
                 ? const Center(
                     child: CircularProgressIndicator(),
                   )

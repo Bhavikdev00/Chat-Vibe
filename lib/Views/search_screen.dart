@@ -5,6 +5,8 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:sizer/sizer.dart';
 
+import '../Controllers/Friends_data_controller.dart';
+
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
 
@@ -21,6 +23,7 @@ class _SearchScreenState extends State<SearchScreen> {
   List<Map<String, dynamic>> usersList = [];
   List<Map<String, dynamic>> allUsersList = [];
   TextEditingController searchController = TextEditingController();
+  FriendsDataController _friendsDataController = Get.find();
 
   Future getAllData() async {
     var user =
@@ -49,6 +52,16 @@ class _SearchScreenState extends State<SearchScreen> {
       }
     });
     print(allUsersList);
+  }
+
+  bool chechFriend(String friendId) {
+    bool b = false;
+    for (var element in _friendsDataController.friendDataList) {
+      if (element['uId'] == friendId) {
+        b = true;
+      }
+    }
+    return b;
   }
 
   @override
@@ -117,16 +130,18 @@ class _SearchScreenState extends State<SearchScreen> {
                         data['username'],
                         style: TextStyle(color: Colors.white, fontSize: 13.sp),
                       ),
-                      trailing: InkResponse(
-                        onTap: () {
-                          friendServices.sendFriendRequest(
-                              box.read("uId"), data['uId']);
-                        },
-                        child: const Icon(
-                          Icons.person_add_alt_1,
-                          color: Colors.white,
-                        ),
-                      ),
+                      trailing: chechFriend(data['uId'])
+                          ? SizedBox()
+                          : InkResponse(
+                              onTap: () {
+                                friendServices.sendFriendRequest(
+                                    box.read("uId"), data['uId']);
+                              },
+                              child: const Icon(
+                                Icons.person_add_alt_1,
+                                color: Colors.white,
+                              ),
+                            ),
                     );
                   },
                 ),

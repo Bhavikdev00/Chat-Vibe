@@ -1,11 +1,13 @@
 import 'package:chatvibe/Controllers/Friends_data_controller.dart';
+import 'package:chatvibe/Firebase%20Services/chat_services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
 import '../Controllers/online_friends_data_controller.dart';
 
 class FriendServices {
-  FriendsDataController _friendsDataController = Get.find();
+  static FriendsDataController _friendsDataController = Get.find();
   // Function to send a friend request
   Future<void> sendFriendRequest(String senderUid, String recipientUid) async {
     // Add a friend request document to recipient's subcollection
@@ -62,5 +64,28 @@ class FriendServices {
         .collection('friend_requests')
         .doc(friendUid)
         .delete();
+  }
+
+  static Future<void> deleteFriend(String userUid, String friendUid) async {
+    // Delete the friend record from the user's friends collection
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userUid)
+        .collection('friends')
+        .doc(friendUid)
+        .delete();
+
+    Map result = await ChatServices.isChatRoomExist(userUid, friendUid);
+
+    if (result["isExist"] != false) {
+      await FirebaseFirestore.instance
+          .collection('chats')
+          .doc(result["chatRoomId"])
+          .update({});
+    }
+
+    // Delete the chat history between the user and the friend (only from user's device)
+
+    _friendsDataController.getFriendsData();
   }
 }
