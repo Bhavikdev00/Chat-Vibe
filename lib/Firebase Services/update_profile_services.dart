@@ -1,3 +1,4 @@
+import 'package:chatvibe/Controllers/Friends_data_controller.dart';
 import 'package:chatvibe/Controllers/profile_data_controller.dart';
 import 'package:chatvibe/Views/CommonWidget/error_message.dart';
 import 'package:chatvibe/Views/home_screen.dart';
@@ -13,15 +14,15 @@ import 'auth_services.dart';
 
 class UpdateProfileServices {
   final box = GetStorage();
-  ProfileDataController profileDataController = Get.find();
-
+  final ProfileDataController _profileDataController = Get.find();
+  final FriendsDataController _friendsDataController = Get.find();
   Future updateData(
       {required String email,
       required String username,
       required String fullname}) async {
     TextEditingController passwordController = TextEditingController();
     try {
-      if (profileDataController.profileData['email'] != email) {
+      if (_profileDataController.profileData['email'] != email) {
         Get.dialog(
           AlertDialog(
             title: Text("Please Enter Password",
@@ -52,7 +53,7 @@ class UpdateProfileServices {
                           email: email!, password: password)
                       .then(
                     (value) async {
-                      if (profileDataController.profileData['username'] !=
+                      if (_profileDataController.profileData['username'] !=
                           username) {
                         bool isavailable =
                             await AuthServices.isUsernameAvailable(username);
@@ -73,7 +74,10 @@ class UpdateProfileServices {
                             .doc(box.read("uId"))
                             .update({"fullname": fullname});
                       }
-                      Get.offAll(() => const HomeScreen());
+                      _friendsDataController.getFriendsData();
+                      _profileDataController.getProfileData();
+                      Get.back();
+                      Get.back();
                     },
                   );
                 },
@@ -85,7 +89,7 @@ class UpdateProfileServices {
 
         await FirebaseAuth.instance.currentUser!.updateEmail(email);
       } else {
-        if (profileDataController.profileData['username'] != username) {
+        if (_profileDataController.profileData['username'] != username) {
           bool isavailable = await AuthServices.isUsernameAvailable(username);
 
           if (isavailable == true) {
@@ -93,7 +97,10 @@ class UpdateProfileServices {
                 .collection("users")
                 .doc(box.read("uId"))
                 .update({"username": username, "fullname": fullname});
-            Get.offAll(() => const HomeScreen());
+            _friendsDataController.getFriendsData();
+            _profileDataController.getProfileData();
+            Get.back();
+            Get.back();
           } else {
             errorMessageShow(errorMessage: 'Username not available');
           }
@@ -102,7 +109,11 @@ class UpdateProfileServices {
               .collection("users")
               .doc(box.read("uId"))
               .update({"fullname": fullname});
-          Get.offAll(() => const HomeScreen());
+          _friendsDataController.getFriendsData();
+          _profileDataController.getProfileData();
+          Get.back();
+          Get.back();
+          // Get.offAll(() => const HomeScreen());
         }
       }
     } on FirebaseAuthException catch (e) {

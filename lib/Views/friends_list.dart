@@ -1,3 +1,4 @@
+import 'package:chatvibe/Controllers/Friends_data_controller.dart';
 import 'package:chatvibe/Controllers/profile_data_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -27,33 +28,36 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                   },
                   child: const Icon(Icons.arrow_back,
                       color: Colors.white, size: 35)),
-              GetBuilder<ProfileDataController>(
-                  builder: (controller) => Expanded(
-                        child: ListView.builder(
-                          itemCount: controller.friendsData.length,
-                          itemBuilder: (context, index) {
-                            Map<String, dynamic> data =
-                                controller.friendsData[index];
-                            return ListTile(
-                              leading: CircleAvatar(radius: 3.5.h),
-                              contentPadding:
-                                  EdgeInsets.only(left: 2.w, top: 2.5.h),
-                              title: Text(
-                                data['username'],
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 13.sp),
-                              ),
-                              trailing: InkResponse(
-                                onTap: () {},
-                                child: const Icon(
-                                  Icons.delete_rounded,
-                                  color: Colors.white,
+              GetBuilder<FriendsDataController>(
+                  builder: (controller) => controller.friendDataList.isEmpty
+                      ? const SizedBox()
+                      : Expanded(
+                          child: ListView.builder(
+                            itemCount: controller.friendDataList.length,
+                            itemBuilder: (context, index) {
+                              Map<String, dynamic> data =
+                                  controller.friendDataList[index];
+                              print("Bhavik ====>>> $data");
+                              return ListTile(
+                                leading: CircleAvatar(radius: 3.5.h),
+                                contentPadding:
+                                    EdgeInsets.only(left: 2.w, top: 2.5.h),
+                                title: Text(
+                                  data['username'],
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 13.sp),
                                 ),
-                              ),
-                            );
-                          },
-                        ),
-                      )),
+                                trailing: InkResponse(
+                                  onTap: () {},
+                                  child: const Icon(
+                                    Icons.delete_rounded,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        )),
             ],
           ),
         ),

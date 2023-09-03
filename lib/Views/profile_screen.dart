@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:chatvibe/Controllers/profile_data_controller.dart';
+import 'package:chatvibe/Firebase%20Services/auth_services.dart';
 import 'package:chatvibe/Views/CommonWidget/common_button.dart';
 import 'package:chatvibe/Views/edit_profile_screen.dart';
 import 'package:chatvibe/Views/friends_list.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
 
+import '../Controllers/count_friend_requests.dart';
 import 'notification_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -18,10 +20,12 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  CountFrdRequest _countFrdRequest = CountFrdRequest();
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    _countFrdRequest.CountFrdRequestData();
   }
 
   @override
@@ -39,8 +43,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.arrow_back,
-                          color: Colors.white, size: 35),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          InkResponse(
+                              onTap: () {
+                                Get.back();
+                              },
+                              child: const Icon(Icons.arrow_back,
+                                  color: Colors.white, size: 35)),
+                          GestureDetector(
+                            onTap: () {
+                              AuthServices.logOut();
+                            },
+                            child: const Icon(
+                              Icons.logout,
+                              color: Colors.white,
+                              size: 30,
+                            ),
+                          )
+                        ],
+                      ),
                       SizedBox(
                         height: 3.h,
                       ),
@@ -109,7 +132,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 2.w),
-                                child: Container(
+                                child: SizedBox(
                                   width: double.infinity,
                                   height: 9.h,
                                   child: Padding(
@@ -195,14 +218,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                   SizedBox(
                                                     height: 0.7.h,
                                                   ),
-                                                  Text(
-                                                      "${controller.friendsData.length}",
-                                                      style: TextStyle(
-                                                          letterSpacing: 0.8,
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize: 12.sp)),
+                                                  Obx(
+                                                    () {
+                                                      return Text(
+                                                          "${_countFrdRequest.countFriends}",
+                                                          style: TextStyle(
+                                                              letterSpacing:
+                                                                  0.8,
+                                                              color:
+                                                                  Colors.white,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 12.sp));
+                                                    },
+                                                  )
                                                 ],
                                               ),
                                             ),
@@ -225,14 +255,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                   SizedBox(
                                                     height: 0.7.h,
                                                   ),
-                                                  Text(
-                                                      "${controller.friendRequests.length}",
-                                                      style: TextStyle(
-                                                          letterSpacing: 0.8,
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize: 12.sp)),
+                                                  Obx(
+                                                    () {
+                                                      return Text(
+                                                          "${_countFrdRequest.countRequests}",
+                                                          style: TextStyle(
+                                                              letterSpacing:
+                                                                  0.8,
+                                                              color:
+                                                                  Colors.white,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 12.sp));
+                                                    },
+                                                  )
                                                 ],
                                               ),
                                             ),

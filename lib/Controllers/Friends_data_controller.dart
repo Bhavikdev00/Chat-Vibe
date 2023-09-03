@@ -4,6 +4,7 @@ import 'package:get_storage/get_storage.dart';
 
 class FriendsDataController extends GetxController {
   List<Map<String, dynamic>> friendDataList = [];
+  List<String> friendUids = [];
   bool isloading = false;
   Future getFriendsData() async {
     final box = GetStorage();
@@ -16,8 +17,8 @@ class FriendsDataController extends GetxController {
 
     QuerySnapshot querySnapshot = await myFriendsCollection.get();
 
-    List<String> friendUids = querySnapshot.docs.map((doc) => doc.id).toList();
-
+    friendUids = querySnapshot.docs.map((doc) => doc.id).toList();
+    friendDataList.clear();
     for (String friendUid in friendUids) {
       DocumentSnapshot friendSnapshot = await FirebaseFirestore.instance
           .collection('users')
@@ -31,6 +32,5 @@ class FriendsDataController extends GetxController {
     }
     isloading = false;
     update();
-    print("-------->>>>>>>>> Data $friendDataList");
   }
 }

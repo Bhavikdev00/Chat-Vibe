@@ -40,6 +40,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     fullNameController.text = profileDataController.profileData['fullname'];
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   ImagePicker picker = ImagePicker();
   File? profileimage;
 

@@ -4,6 +4,7 @@ import 'package:chatvibe/Views/Authentication/signin_screen.dart';
 import 'package:chatvibe/Views/home_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get_storage/get_storage.dart';
@@ -21,6 +22,14 @@ class AuthServices {
     FirebaseAuth auth = FirebaseAuth.instance;
 
     try {
+      Get.dialog(const Dialog(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+      ));
       UserCredential credential = await auth.createUserWithEmailAndPassword(
           email: email, password: password);
 
@@ -33,6 +42,7 @@ class AuthServices {
           "username": userName,
           "email": email,
           "fullname": name,
+          "profile": "",
           "uId": credential.user!.uid
         });
         box.write("uId", credential.user!.uid);
@@ -41,6 +51,7 @@ class AuthServices {
       Get.offAll(() => const HomeScreen());
     } on FirebaseAuthException catch (e) {
       String errorMessage = "Somthing went Wrong !!";
+      Get.back();
       if (e.code == 'weak-password') {
         errorMessage = "The password provided is too weak.";
       } else if (e.code == 'email-already-in-use') {
@@ -67,6 +78,14 @@ class AuthServices {
       {required String usernameOrEmail, required String password}) async {
     try {
       UserCredential credential;
+      Get.dialog(const Dialog(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+      ));
       if (usernameOrEmail.contains('@')) {
         // User provided an email
         credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -88,11 +107,13 @@ class AuthServices {
           Get.offAll(() => const HomeScreen());
         } else {
           //provide msgfor check username}
+          Get.back();
           errorMessageShow(errorMessage: "Please Check UserName");
         }
         // Handle successful login
       }
     } on FirebaseAuthException catch (e) {
+      Get.back();
       String errorMessage = "An error occurred during login.";
       if (e.code == 'user-not-found') {
         errorMessage = "No user found with that email or username.";
@@ -132,5 +153,11 @@ class AuthServices {
 
       errorMessageShow(errorMessage: errorMessage);
     }
+  }
+
+  static logOut() {
+    final box = GetStorage();
+    box.erase();
+    Get.offAll(() => const SignInScreen());
   }
 }

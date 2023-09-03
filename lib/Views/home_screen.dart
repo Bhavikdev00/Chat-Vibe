@@ -1,4 +1,5 @@
 import 'package:chatvibe/Controllers/Friends_data_controller.dart';
+import 'package:chatvibe/Controllers/count_unread_message.dart';
 import 'package:chatvibe/Controllers/profile_data_controller.dart';
 import 'package:chatvibe/Firebase%20Services/chat_services.dart';
 import 'package:chatvibe/Views/Chat%20Screen/chat_screen.dart';
@@ -9,6 +10,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:lottie/lottie.dart';
 import 'package:sizer/sizer.dart';
 
 import '../Controllers/online_friends_data_controller.dart';
@@ -25,8 +27,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       Get.put(ProfileDataController());
   FriendsDataController friendsDataController =
       Get.put(FriendsDataController());
-  final OnlineFrdDataController _onlineFrdDataController =
-      Get.put(OnlineFrdDataController());
 
   CollectionReference chatRoom =
       FirebaseFirestore.instance.collection("chatRoom");
@@ -43,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         .collection("users")
         .doc(box.read("uId"))
         .collection("friends");
-    _onlineFrdDataController.getData();
+
     friendsDataController.getFriendsData();
     profileDataController.getProfileData();
     _chatServices.setStatus("Online");
@@ -54,7 +54,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) {
       // online
       _chatServices.setStatus("Online");
-      print("---------------->>>>>>>");
     } else {
       // offline
       _chatServices.setStatus("Offline");
@@ -70,121 +69,71 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xff1B202D),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 1.5.w),
-              child: Row(
-                children: [
-                  Text(
-                    "Messages",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 22.sp),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                      splashRadius: 0.5,
-                      onPressed: () {
-                        Get.to(() => const SearchScreen());
+    return RefreshIndicator(
+      onRefresh: () {
+        return Future.delayed(
+          const Duration(seconds: 1),
+          () {
+            print("Refresh");
+            friendsDataController.getFriendsData();
+            setState(() {});
+          },
+        );
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xff1B202D),
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 1.5.w),
+                child: Row(
+                  children: [
+                    Text(
+                      "Messages",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22.sp),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                        splashRadius: 0.5,
+                        onPressed: () {
+                          Get.to(() => const SearchScreen());
+                        },
+                        icon: Image.asset(
+                          "asset/images/search.png",
+                          color: Colors.white,
+                          height: 3.5.h,
+                        )),
+                    SizedBox(
+                      width: 1.w,
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Get.to(() => const ProfileScreen());
                       },
-                      icon: Image.asset(
-                        "asset/images/search.png",
-                        color: Colors.white,
-                        height: 3.5.h,
-                      )),
-                  SizedBox(
-                    width: 1.w,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Get.to(() => const ProfileScreen());
-                    },
-                    child: Container(
-                        width: 7.w,
-                        height: 5.h,
-                        decoration: const BoxDecoration(
-                            image: DecorationImage(
-                                image: AssetImage(
-                                  "asset/images/profile.jpg",
-                                ),
-                                fit: BoxFit.cover),
-                            shape: BoxShape.circle,
-                            color: Colors.green)),
-                  )
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 3.h,
-            ),
-            SizedBox(
-              height: 11.h,
-              width: double.infinity,
-              child: GetBuilder<OnlineFrdDataController>(
-                builder: (controller) {
-                  return ListView.builder(
-                    itemCount: controller.onlineFrdData.length,
-                    scrollDirection: Axis.horizontal,
-                    itemBuilder: (context, index) {
-                      Map onrFrd = controller.onlineFrdData[index];
-                      return Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 2.w),
-                        child: Column(
-                          children: [
-                            CircleAvatar(
-                              radius: 9.5.w,
-                              child: Stack(
-                                clipBehavior: Clip.none,
-                                children: [
-                                  CircleAvatar(
-                                    radius: 9.5.w,
-                                    backgroundImage: onrFrd["profile"] != null
-                                        ? NetworkImage(
-                                            onrFrd["profile"].toString())
-                                        : const AssetImage(
-                                                "asset/images/profile.jpg")
-                                            as ImageProvider,
+                      child: Container(
+                          width: 7.w,
+                          height: 5.h,
+                          decoration: const BoxDecoration(
+                              image: DecorationImage(
+                                  image: AssetImage(
+                                    "asset/images/profile.jpg",
                                   ),
-                                  Positioned(
-                                    bottom: 3,
-                                    right: 3,
-                                    child: CircleAvatar(
-                                      backgroundColor: Colors.green,
-                                      radius: 7,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Text(
-                              "${onrFrd['username']}",
-                              style: TextStyle(color: Colors.white),
-                            )
-                          ],
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-            SizedBox(
-              height: 2.h,
-            ),
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xff292F3F),
-                  borderRadius: BorderRadiusDirectional.vertical(
-                    top: Radius.circular(10.w),
-                  ),
+                                  fit: BoxFit.cover),
+                              shape: BoxShape.circle,
+                              color: Colors.green)),
+                    )
+                  ],
                 ),
+              ),
+              SizedBox(
+                height: 1.h,
+              ),
+              Expanded(
                 child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 5.w),
                     child: GetBuilder<FriendsDataController>(
@@ -193,64 +142,73 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                             ? const Center(
                                 child: CircularProgressIndicator(),
                               )
-                            : ListView.builder(
-                                itemCount: controller.friendDataList.length,
-                                shrinkWrap: true,
-                                itemBuilder: (context, index) {
-                                  final frd = controller.friendDataList[index];
-                                  return ListTile(
-                                    onTap: () async {
-                                      Map result =
-                                          await _chatServices.isChatRoomExist(
-                                              "${box.read("uId")}", frd["uId"]);
-                                      if (!result['isExist']) {
-                                        await chatRoom
-                                            .doc(
-                                                "${box.read("uId")}-${frd["uId"]}")
-                                            .set({
-                                          "firstUid": box.read("uId"),
-                                          "secondUid": frd["uId"],
-                                        });
-                                      }
+                            : controller.friendDataList.isEmpty
+                                ? Lottie.asset("asset/lottie/chat-bot.json",
+                                    height: 230)
+                                : ListView.builder(
+                                    itemCount: controller.friendDataList.length,
+                                    shrinkWrap: true,
+                                    itemBuilder: (context, index) {
+                                      final frd =
+                                          controller.friendDataList[index];
+                                      return ListTile(
+                                        onTap: () async {
+                                          Map result = await _chatServices
+                                              .isChatRoomExist(
+                                                  "${box.read("uId")}",
+                                                  frd["uId"]);
+                                          if (!result['isExist']) {
+                                            await chatRoom
+                                                .doc(
+                                                    "${box.read("uId")}-${frd["uId"]}")
+                                                .set({
+                                              "firstUid": box.read("uId"),
+                                              "secondUid": frd["uId"],
+                                            });
+                                          }
 
-                                      Get.to(() => ChatScreen(
-                                            frdUId: frd["uId"],
-                                            frdUserName: frd["username"],
-                                            roomId: result['isExist'] == true
-                                                ? result['chatRoomId']
-                                                : "${box.read("uId")}-${frd["uId"]}",
-                                          ));
+                                          Get.to(() => ChatScreen(
+                                                frdUId: frd["uId"],
+                                                frdUserName: frd["username"],
+                                                roomId: result['isExist'] ==
+                                                        true
+                                                    ? result['chatRoomId']
+                                                    : "${box.read("uId")}-${frd["uId"]}",
+                                              ));
 
-                                      // print(result);
+                                          // print(result);
+                                        },
+                                        leading: CircleAvatar(
+                                            radius: 3.5.h,
+                                            backgroundImage: frd['profile'] !=
+                                                    ""
+                                                ? NetworkImage(
+                                                    "${frd['profile']}")
+                                                : const AssetImage(
+                                                        "asset/images/profile.jpg")
+                                                    as ImageProvider),
+                                        contentPadding: EdgeInsets.only(
+                                            left: 2.w, top: 2.5.h),
+                                        title: Text(
+                                          "${frd['username']}",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 13.sp),
+                                        ),
+                                        subtitle: Text(
+                                          "Hy",
+                                          style: TextStyle(
+                                              color: Colors.white54,
+                                              fontSize: 11.sp),
+                                        ),
+                                      );
                                     },
-                                    leading: CircleAvatar(
-                                        radius: 3.5.h,
-                                        backgroundImage: frd['profile'] != ""
-                                            ? NetworkImage("${frd['profile']}")
-                                            : const AssetImage(
-                                                    "asset/images/profile.jpg")
-                                                as ImageProvider),
-                                    contentPadding:
-                                        EdgeInsets.only(left: 2.w, top: 2.5.h),
-                                    title: Text(
-                                      "${frd['username']}",
-                                      style: TextStyle(
-                                          color: Colors.white, fontSize: 13.sp),
-                                    ),
-                                    subtitle: Text(
-                                      "Hy",
-                                      style: TextStyle(
-                                          color: Colors.white54,
-                                          fontSize: 11.sp),
-                                    ),
                                   );
-                                },
-                              );
                       },
                     )),
-              ),
-            )
-          ],
+              )
+            ],
+          ),
         ),
       ),
     );

@@ -30,8 +30,6 @@ class OnlineFrdDataController extends GetxController {
         if (data['status'] == "Online") {
           onlineFrdData.add(event.data());
         }
-
-        print("-------=========== DAta  $onlineFrdData");
         update();
       });
     });

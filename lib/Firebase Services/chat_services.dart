@@ -27,7 +27,8 @@ class ChatServices {
     await chatRoom.doc(roomId).collection("chats").doc().set({
       "msg": message,
       "DateTime": DateTime.now(),
-      "senderId": box.read("uId")
+      "senderId": box.read("uId"),
+      "read": false
     });
   }
 
@@ -35,6 +36,6 @@ class ChatServices {
     await FirebaseFirestore.instance
         .collection("users")
         .doc("${box.read("uId")}")
-        .update({"status": status});
+        .update({"status": status, "lastActive": DateTime.now()});
   }
 }

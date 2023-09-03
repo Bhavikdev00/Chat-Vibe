@@ -17,7 +17,7 @@ class _SearchScreenState extends State<SearchScreen> {
   final box = GetStorage();
 
   CollectionReference users = FirebaseFirestore.instance.collection("users");
-  bool isloading = true;
+  bool isLoading = true;
   List<Map<String, dynamic>> usersList = [];
   List<Map<String, dynamic>> allUsersList = [];
   TextEditingController searchController = TextEditingController();
@@ -33,7 +33,7 @@ class _SearchScreenState extends State<SearchScreen> {
     }
 
     setState(() {
-      isloading = false;
+      isLoading = false;
     });
   }
 
@@ -103,7 +103,15 @@ class _SearchScreenState extends State<SearchScreen> {
                         ? allUsersList[index]
                         : usersList[index];
                     return ListTile(
-                      leading: CircleAvatar(radius: 3.5.h),
+                      leading: CircleAvatar(
+                          radius: 3.5.h,
+                          backgroundColor:
+                              const Color(0xff333e54).withOpacity(0.7),
+                          backgroundImage: data['profile'] != ""
+                              ? NetworkImage(data["profile"])
+                              : const AssetImage(
+                                  "asset/images/profile.jpg",
+                                ) as ImageProvider),
                       contentPadding: EdgeInsets.only(left: 2.w, top: 2.5.h),
                       title: Text(
                         data['username'],
