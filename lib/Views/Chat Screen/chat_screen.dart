@@ -1,10 +1,17 @@
+import 'dart:io';
+
 import 'package:chatvibe/Firebase%20Services/chat_services.dart';
 import 'package:chatvibe/Views/Chat%20Screen/Widget/msg_container.dart';
+import 'package:chatvibe/Views/Chat%20Screen/image_screen.dart';
 import 'package:chatvibe/helper/date_formate.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:sizer/sizer.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -23,9 +30,12 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final box = GetStorage();
+  final picker = ImagePicker();
+  File? image;
   final TextEditingController _messageController = TextEditingController();
   ChatServices chatServices = ChatServices();
   ScrollController _scrollController = ScrollController();
+  FirebaseStorage storage = FirebaseStorage.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -62,58 +72,63 @@ class _ChatScreenState extends State<ChatScreen> {
           }
         },
       )),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 2.w),
-        child: Column(
-          children: [
-            Expanded(
-                child: StreamBuilder(
-              stream: FirebaseFirestore.instance
-                  .collection("chatRoom")
-                  .doc(widget.roomId)
-                  .collection("chats")
-                  .orderBy("DateTime", descending: false)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(
-                      child:
-                          CircularProgressIndicator()); // Loading indicator or placeholder
-                }
+      body: Column(
+        children: [
+          Expanded(
+              child: StreamBuilder(
+            stream: FirebaseFirestore.instance
+                .collection("chatRoom")
+                .doc(widget.roomId)
+                .collection("chats")
+                .orderBy("DateTime", descending: false)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const Center(
+                    child:
+                        CircularProgressIndicator()); // Loading indicator or placeholder
+              }
 
-                List chatDocuments = snapshot.data!.docs;
-                List<String> chatDocumentsId =
-                    snapshot.data!.docs.map((e) => e.id).toList();
-                return ListView.builder(
-                  controller: _scrollController,
-                  itemCount: chatDocuments.length,
-                  itemBuilder: (context, index) {
-                    Map<String, dynamic> chat =
-                        chatDocuments[index].data() as Map<String, dynamic>;
-                    bool isMe = false;
-                    if (chat["senderId"] == box.read("uId")) {
-                      isMe = true;
-                    }
-                    return isMe
-                        ? Dismissible(
-                            key: UniqueKey(),
-                            onDismissed: (direction) async {
-                              FirebaseFirestore.instance
-                                  .collection("chatRoom")
-                                  .doc(widget.roomId)
-                                  .collection("chats")
-                                  .doc(chatDocumentsId[index])
-                                  .delete();
-                            },
-                            child: MsgContainer(
-                                isMe: isMe, msg: chat["msg"].toString()),
-                          )
-                        : MsgContainer(isMe: isMe, msg: chat["msg"].toString());
-                  },
-                );
-              },
-            )),
-            TextField(
+              List chatDocuments = snapshot.data!.docs;
+              List<String> chatDocumentsId =
+                  snapshot.data!.docs.map((e) => e.id).toList();
+              return ListView.builder(
+                controller: _scrollController,
+                itemCount: chatDocuments.length,
+                itemBuilder: (context, index) {
+                  Map<String, dynamic> chat =
+                      chatDocuments[index].data() as Map<String, dynamic>;
+                  bool isMe = false;
+                  if (chat["senderId"] == box.read("uId")) {
+                    isMe = true;
+                  }
+                  return isMe
+                      ? Dismissible(
+                          key: UniqueKey(),
+                          onDismissed: (direction) async {
+                            FirebaseFirestore.instance
+                                .collection("chatRoom")
+                                .doc(widget.roomId)
+                                .collection("chats")
+                                .doc(chatDocumentsId[index])
+                                .delete();
+                          },
+                          child: MsgContainer(
+                              msgType: chat['msgType'],
+                              isMe: isMe,
+                              msg: chat["msg"].toString()),
+                        )
+                      : MsgContainer(
+                          msgType: chat['msgType'],
+                          isMe: isMe,
+                          msg: chat["msg"].toString());
+                },
+              );
+            },
+          )),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 2.w),
+            child: TextField(
               controller: _messageController,
               onSubmitted: (value) async {
                 if (_messageController.text != "") {
@@ -148,6 +163,35 @@ class _ChatScreenState extends State<ChatScreen> {
                         Icons.send,
                         color: Color(0xff9398A7),
                       )),
+                  prefixIcon: Padding(
+                    padding: EdgeInsets.only(
+                      top: 0.6.h,
+                      bottom: 0.6.h,
+                      left: 1.w,
+                    ),
+                    child: GestureDetector(
+                      onTap: () async {
+                        XFile? file =
+                            await picker.pickImage(source: ImageSource.camera);
+                        image = File(file!.path);
+                        if (image != null) {
+                          Get.to(() => ImageScreen(
+                                image: image,
+                                roomId: widget.roomId,
+                              ));
+                        }
+                      },
+                      child: const CircleAvatar(
+                        radius: 5,
+                        backgroundColor: Color(0xff7a8194),
+                        child: Center(
+                            child: Icon(
+                          Icons.camera_alt_outlined,
+                          color: Color(0xff1c222e),
+                        )),
+                      ),
+                    ),
+                  ),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(2.5.h),
                       borderSide: const BorderSide(color: Colors.transparent)),
@@ -157,11 +201,11 @@ class _ChatScreenState extends State<ChatScreen> {
                   filled: true,
                   fillColor: const Color(0xff3D4354)),
             ),
-            SizedBox(
-              height: 3.h,
-            ),
-          ],
-        ),
+          ),
+          SizedBox(
+            height: 3.h,
+          ),
+        ],
       ),
     );
   }

@@ -1,4 +1,9 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:get_storage/get_storage.dart';
 
 class ChatServices {
@@ -28,6 +33,7 @@ class ChatServices {
       "msg": message,
       "DateTime": DateTime.now(),
       "senderId": box.read("uId"),
+      "msgType": "text",
       "read": false
     });
   }
@@ -37,5 +43,29 @@ class ChatServices {
         .collection("users")
         .doc("${box.read("uId")}")
         .update({"status": status, "lastActive": DateTime.now()});
+  }
+
+  static Future sendImage(
+      {required String roomId,
+      required File? image,
+      required String myId}) async {
+    FirebaseStorage storage = FirebaseStorage.instance;
+
+    String imageUrl = "";
+    DateTime date = DateTime.now();
+    await storage.ref("Images/${date}.png").putFile(image!).then(
+      (p0) async {
+        imageUrl = await p0.ref.getDownloadURL();
+        await chatRoom.doc(roomId).collection("chats").doc().set({
+          "msg": imageUrl,
+          "DateTime": date,
+          "senderId": myId,
+          "msgType": "image",
+          "read": false
+        });
+
+        Get.back();
+      },
+    );
   }
 }
