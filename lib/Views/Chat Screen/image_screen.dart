@@ -5,7 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:lottie/lottie.dart';
 import 'package:sizer/sizer.dart';
+
+import '../../Controllers/image_send_indicator.dart';
 
 class ImageScreen extends StatefulWidget {
   final File? image;
@@ -50,26 +53,47 @@ class _ImageScreenState extends State<ImageScreen> {
                 SizedBox(
                   height: 1.h,
                 ),
-                GestureDetector(
-                  onTap: () {
-                    ChatServices.sendImage(
-                        roomId: widget.roomId,
-                        image: widget.image,
-                        myId: box.read("uId"));
+                Obx(
+                  () {
+                    return ImageSendIndicator.bool.value == false
+                        ? GestureDetector(
+                            onTap: () {
+                              ChatServices.sendImage(
+                                  roomId: widget.roomId,
+                                  image: widget.image,
+                                  myId: box.read("uId"));
+                            },
+                            child: Container(
+                              height: 5.h,
+                              width: 20.w,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: Center(
+                                child: Text("Send",
+                                    style: TextStyle(
+                                        color: Colors.black, fontSize: 11.sp)),
+                              ),
+                            ),
+                          )
+                        : Container(
+                            height: 5.h,
+                            width: 20.w,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: const Center(
+                              child: SizedBox(
+                                  height: 25,
+                                  width: 25,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.grey,
+                                  )),
+                            ),
+                          );
                   },
-                  child: Container(
-                    height: 5.h,
-                    width: 20.w,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: Center(
-                      child: Text("Send",
-                          style:
-                              TextStyle(color: Colors.black, fontSize: 11.sp)),
-                    ),
-                  ),
                 )
               ],
             ),

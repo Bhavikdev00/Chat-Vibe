@@ -1,4 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
 
 class MsgContainer extends StatefulWidget {
@@ -43,18 +45,36 @@ class _MsgContainerState extends State<MsgContainer> {
               )
             : widget.msgType == "image"
                 ? Padding(
-                    padding: EdgeInsets.symmetric(vertical: 5),
-                    child: Container(
-                      height: 160,
-                      width: 120,
-                      decoration: BoxDecoration(
-                          color: Colors.black12,
-                          image:
-                              DecorationImage(image: NetworkImage(widget.msg)),
-                          borderRadius: BorderRadius.circular(20)),
+                    padding: const EdgeInsets.symmetric(vertical: 5),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: CachedNetworkImage(
+                        imageUrl: widget.msg,
+                        height: 160,
+                        width: 120,
+                        progressIndicatorBuilder:
+                            (context, url, downloadProgress) {
+                          return SizedBox(
+                            height: 160,
+                            width: 120,
+                            child: Shimmer.fromColors(
+                              baseColor: Colors.black38,
+                              highlightColor: Colors.white10,
+                              child: Container(
+                                height: 160,
+                                width: 120,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    color: Colors.white),
+                              ),
+                            ),
+                          );
+                        },
+                        errorWidget: (context, url, error) => Icon(Icons.error),
+                      ),
                     ),
                   )
-                : SizedBox(),
+                : const SizedBox(),
       ],
     );
   }

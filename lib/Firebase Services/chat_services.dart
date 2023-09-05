@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:chatvibe/Controllers/image_send_indicator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get/get.dart';
@@ -50,7 +51,7 @@ class ChatServices {
       required File? image,
       required String myId}) async {
     FirebaseStorage storage = FirebaseStorage.instance;
-
+    ImageSendIndicator.isLoading();
     String imageUrl = "";
     DateTime date = DateTime.now();
     await storage.ref("Images/${date}.png").putFile(image!).then(
@@ -63,6 +64,7 @@ class ChatServices {
           "msgType": "image",
           "read": false
         });
+        ImageSendIndicator.isLoading();
 
         Get.back();
       },
