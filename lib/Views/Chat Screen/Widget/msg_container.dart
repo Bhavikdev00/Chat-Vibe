@@ -1,4 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chatvibe/Views/Chat%20Screen/Widget/voidce_message.dart';
+import 'package:chatvibe/demo/Recorder.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
@@ -74,7 +76,9 @@ class _MsgContainerState extends State<MsgContainer> {
                       ),
                     ),
                   )
-                : const SizedBox(),
+                : widget.msgType == "mp3"
+                    ? VoiceMessage(isMe: widget.isMe, url: "${widget.msg}")
+                    : SizedBox(),
       ],
     );
   }

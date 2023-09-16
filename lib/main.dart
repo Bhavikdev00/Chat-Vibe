@@ -12,6 +12,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:sizer/sizer.dart';
 
 import 'Views/Chat Screen/image_screen.dart';
+import 'demo/ui.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +36,7 @@ class _MyAppState extends State<MyApp> {
       builder: (context, orientation, deviceType) => GetMaterialApp(
         home:
             box.read("uId") != null ? const HomeScreen() : const SignInScreen(),
+        debugShowCheckedModeBanner: false,
       ),
     );
   }

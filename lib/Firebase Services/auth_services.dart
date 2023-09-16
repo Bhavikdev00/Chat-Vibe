@@ -45,10 +45,8 @@ class AuthServices {
           "profile": "",
           "uId": credential.user!.uid
         });
-        box.write("uId", credential.user!.uid);
-        log("------>>>> User Created");
       }
-      Get.offAll(() => const HomeScreen());
+      Get.offAll(() => const SignInScreen());
     } on FirebaseAuthException catch (e) {
       String errorMessage = "Somthing went Wrong !!";
       Get.back();

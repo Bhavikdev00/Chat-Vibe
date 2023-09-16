@@ -54,7 +54,7 @@ class _SearchScreenState extends State<SearchScreen> {
     print(allUsersList);
   }
 
-  bool chechFriend(String friendId) {
+  bool checkFriend(String friendId) {
     bool b = false;
     for (var element in _friendsDataController.friendDataList) {
       if (element['uId'] == friendId) {
@@ -69,6 +69,12 @@ class _SearchScreenState extends State<SearchScreen> {
     // TODO: implement initState
     super.initState();
     getAllData();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _friendsDataController.getFriendsData();
   }
 
   @override
@@ -130,7 +136,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         data['username'],
                         style: TextStyle(color: Colors.white, fontSize: 13.sp),
                       ),
-                      trailing: chechFriend(data['uId'])
+                      trailing: checkFriend(data['uId'])
                           ? SizedBox()
                           : InkResponse(
                               onTap: () {
