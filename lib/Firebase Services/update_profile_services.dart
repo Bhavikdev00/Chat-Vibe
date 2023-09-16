@@ -48,38 +48,62 @@ class UpdateProfileServices {
                 onPressed: () async {
                   String password = passwordController.text.trim();
                   String? email = FirebaseAuth.instance.currentUser!.email;
-                  await FirebaseAuth.instance
-                      .signInWithEmailAndPassword(
-                          email: email!, password: password)
-                      .then(
-                    (value) async {
-                      if (_profileDataController.profileData['username'] !=
-                          username) {
-                        bool isavailable =
-                            await AuthServices.isUsernameAvailable(username);
+                  try {
+                    Get.dialog(const Dialog(
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
+                      shadowColor: Colors.transparent,
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    ));
+                    await FirebaseAuth.instance
+                        .signInWithEmailAndPassword(
+                            email: email!, password: password)
+                        .then(
+                      (value) async {
+                        if (_profileDataController.profileData['username'] !=
+                            username) {
+                          bool isavailable =
+                              await AuthServices.isUsernameAvailable(username);
 
-                        if (isavailable == true) {
+                          if (isavailable == true) {
+                            await FirebaseFirestore.instance
+                                .collection("users")
+                                .doc(box.read("uId"))
+                                .update({
+                              "email": email!,
+                              "username": username,
+                              "fullname": fullname
+                            });
+                          } else {
+                            errorMessageShow(
+                                errorMessage: 'Username not available');
+                          }
+                        } else {
                           await FirebaseFirestore.instance
                               .collection("users")
                               .doc(box.read("uId"))
-                              .update(
-                                  {"username": username, "fullname": fullname});
-                        } else {
-                          errorMessageShow(
-                              errorMessage: 'Username not available');
+                              .update({"email": email!, "fullname": fullname});
                         }
-                      } else {
-                        await FirebaseFirestore.instance
-                            .collection("users")
-                            .doc(box.read("uId"))
-                            .update({"fullname": fullname});
-                      }
-                      _friendsDataController.getFriendsData();
-                      _profileDataController.getProfileData();
-                      Get.back();
-                      Get.back();
-                    },
-                  );
+                        _friendsDataController.getFriendsData();
+                        _profileDataController.getProfileData();
+                        Get.back();
+                        Get.back();
+                        Get.back();
+                      },
+                    );
+                  } on FirebaseAuthException catch (e) {
+                    Get.back();
+                    String errorMessage = "An error occurred during login.";
+                    if (e.code == 'user-not-found') {
+                      errorMessage =
+                          "No user found with that email or username.";
+                    } else if (e.code == 'wrong-password') {
+                      errorMessage = "Wrong password provided for this user.";
+                    }
+                    errorMessageShow(errorMessage: errorMessage);
+                  }
                 },
                 child: const Text("Submit"),
               ),

@@ -22,7 +22,6 @@ class CountFrdRequest {
     friendRequestsData.listen((event) {
       // Reset the count before updating it
       countRequests.value = 0;
-      print("CALL");
       // Count the number of friend requests
       event.docs.forEach((element) {
         countRequests.value++;

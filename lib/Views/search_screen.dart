@@ -1,3 +1,4 @@
+import 'package:chatvibe/Controllers/count_friend_requests.dart';
 import 'package:chatvibe/Firebase%20Services/friend_request_services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,7 @@ class _SearchScreenState extends State<SearchScreen> {
   List<Map<String, dynamic>> allUsersList = [];
   TextEditingController searchController = TextEditingController();
   FriendsDataController _friendsDataController = Get.find();
+  CountFrdRequest _countFrdRequest = CountFrdRequest();
 
   Future getAllData() async {
     var user =
@@ -69,6 +71,7 @@ class _SearchScreenState extends State<SearchScreen> {
     // TODO: implement initState
     super.initState();
     getAllData();
+    _countFrdRequest.CountFrdRequestData();
   }
 
   @override
@@ -122,33 +125,33 @@ class _SearchScreenState extends State<SearchScreen> {
                         ? allUsersList[index]
                         : usersList[index];
                     return ListTile(
-                      leading: CircleAvatar(
-                          radius: 3.5.h,
-                          backgroundColor:
-                              const Color(0xff333e54).withOpacity(0.7),
-                          backgroundImage: data['profile'] != ""
-                              ? NetworkImage(data["profile"])
-                              : const AssetImage(
-                                  "asset/images/profile.jpg",
-                                ) as ImageProvider),
-                      contentPadding: EdgeInsets.only(left: 2.w, top: 2.5.h),
-                      title: Text(
-                        data['username'],
-                        style: TextStyle(color: Colors.white, fontSize: 13.sp),
-                      ),
-                      trailing: checkFriend(data['uId'])
-                          ? SizedBox()
-                          : InkResponse(
-                              onTap: () {
-                                friendServices.sendFriendRequest(
-                                    box.read("uId"), data['uId']);
-                              },
-                              child: const Icon(
-                                Icons.person_add_alt_1,
-                                color: Colors.white,
-                              ),
-                            ),
-                    );
+                        leading: CircleAvatar(
+                            radius: 3.5.h,
+                            backgroundColor:
+                                const Color(0xff333e54).withOpacity(0.7),
+                            backgroundImage: data['profile'] != ""
+                                ? NetworkImage(data["profile"])
+                                : const AssetImage(
+                                    "asset/images/profile.jpg",
+                                  ) as ImageProvider),
+                        contentPadding: EdgeInsets.only(left: 2.w, top: 2.5.h),
+                        title: Text(
+                          data['username'],
+                          style:
+                              TextStyle(color: Colors.white, fontSize: 13.sp),
+                        ),
+                        trailing: checkFriend(data['uId'])
+                            ? SizedBox()
+                            : InkResponse(
+                                onTap: () {
+                                  friendServices.sendFriendRequest(
+                                      box.read("uId"), data['uId']);
+                                },
+                                child: const Icon(
+                                  Icons.person_add_alt_1,
+                                  color: Colors.white,
+                                ),
+                              ));
                   },
                 ),
               )
