@@ -39,6 +39,15 @@ class ChatServices {
     });
   }
 
+  Future updateChat(
+      {required String roomId,
+      required String message,
+      required String msgId}) async {
+    await chatRoom.doc(roomId).collection("chats").doc(msgId).update({
+      'msg': message,
+    });
+  }
+
   void setStatus(String status) async {
     await FirebaseFirestore.instance
         .collection("users")

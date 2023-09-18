@@ -29,7 +29,7 @@ class _MsgContainerState extends State<MsgContainer> {
         widget.msgType == "text"
             ? Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                    const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
                 child: Container(
                   decoration: BoxDecoration(
                       color: widget.isMe

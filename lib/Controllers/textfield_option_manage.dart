@@ -8,7 +8,7 @@ class TextFieldOptionManage {
     print("${show.value}");
   }
 
-  static void setFrue() {
+  static void setFalse() {
     show.value = false;
     print("${show.value}");
   }

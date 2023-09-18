@@ -72,7 +72,7 @@ class UpdateProfileServices {
                                 .collection("users")
                                 .doc(box.read("uId"))
                                 .update({
-                              "email": email!,
+                              "email": email,
                               "username": username,
                               "fullname": fullname
                             });
@@ -84,7 +84,7 @@ class UpdateProfileServices {
                           await FirebaseFirestore.instance
                               .collection("users")
                               .doc(box.read("uId"))
-                              .update({"email": email!, "fullname": fullname});
+                              .update({"email": email, "fullname": fullname});
                         }
                         _friendsDataController.getFriendsData();
                         _profileDataController.getProfileData();
