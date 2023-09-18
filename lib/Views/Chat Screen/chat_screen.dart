@@ -90,397 +90,421 @@ class _ChatScreenState extends State<ChatScreen> {
             }
           },
         )),
-        body: Column(
-          children: [
-            Expanded(
-                child: StreamBuilder(
-              stream: FirebaseFirestore.instance
-                  .collection("chatRoom")
-                  .doc(widget.roomId)
-                  .collection("chats")
-                  .orderBy("DateTime", descending: false)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(
-                      child:
-                          CircularProgressIndicator()); // Loading indicator or placeholder
-                }
+        body: GestureDetector(
+          onTap: () {
+            Test.dissmissPopup();
+          },
+          child: Column(
+            children: [
+              Expanded(
+                  child: StreamBuilder(
+                stream: FirebaseFirestore.instance
+                    .collection("chatRoom")
+                    .doc(widget.roomId)
+                    .collection("chats")
+                    .orderBy("DateTime", descending: false)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const Center(
+                        child:
+                            CircularProgressIndicator()); // Loading indicator or placeholder
+                  }
 
-                List chatDocuments = snapshot.data!.docs;
+                  List chatDocuments = snapshot.data!.docs;
 
-                List<String> chatDocumentsId =
-                    snapshot.data!.docs.map((e) => e.id).toList();
-                return ListView.builder(
-                  controller: _scrollController,
-                  itemCount: chatDocuments.length,
-                  itemBuilder: (context, index) {
-                    Map<String, dynamic> chat =
-                        chatDocuments[index].data() as Map<String, dynamic>;
-                    bool isMe = false;
-                    if (chat["senderId"] == box.read("uId")) {
-                      isMe = true;
-                    }
-                    return isMe
-                        ? Obx(
-                            () {
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  InkResponse(
-                                    onLongPress: () {
-                                      Test.changeValue(index);
-                                    },
-                                    child: MsgContainer(
-                                        msgType: chat['msgType'],
-                                        isMe: isMe,
-                                        msg: chat["msg"].toString()),
-                                  ),
-                                  if (Test.bool.value)
-                                    // Blurred background
-                                    BackdropFilter(
-                                      filter: ImageFilter.blur(
-                                          sigmaX: 0.5, sigmaY: 0.5),
-                                      child: Container(
-                                        color: Colors.black.withOpacity(
-                                            0.5), // Adjust opacity as needed
-                                      ),
+                  List<String> chatDocumentsId =
+                      snapshot.data!.docs.map((e) => e.id).toList();
+                  return ListView.builder(
+                    controller: _scrollController,
+                    itemCount: chatDocuments.length,
+                    itemBuilder: (context, index) {
+                      Map<String, dynamic> chat =
+                          chatDocuments[index].data() as Map<String, dynamic>;
+                      bool isMe = false;
+                      if (chat["senderId"] == box.read("uId")) {
+                        isMe = true;
+                      }
+                      return isMe
+                          ? Obx(
+                              () {
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    InkResponse(
+                                      onLongPress: () {
+                                        Test.changeValue(index);
+                                      },
+                                      child: MsgContainer(
+                                          msgType: chat['msgType'],
+                                          isMe: isMe,
+                                          msg: chat["msg"].toString()),
                                     ),
-                                  Test.temp.value == index && Test.bool.value
-                                      ? Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 10, vertical: 5),
-                                          child: Container(
-                                            width: 110,
-                                            height: 120,
-                                            decoration: BoxDecoration(
-                                                color: Color(0xff383d4e),
-                                                borderRadius:
-                                                    BorderRadius.circular(10)),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 8,
-                                                      vertical: 15),
-                                              child: Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  GestureDetector(
-                                                    onTap: () {
-                                                      _messageController.text =
-                                                          chat["msg"]
-                                                              .toString();
-                                                      docId = chatDocumentsId[
-                                                          index];
-                                                      Test.changeEditValueAsTrue();
-                                                      TextFieldOptionManage
-                                                          .setFalse();
-                                                      Test.dissmissPopup();
-                                                    },
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: [
-                                                        Text(
-                                                          "Edit",
-                                                          style: TextStyle(
-                                                              fontSize: 10.sp,
-                                                              color:
-                                                                  Colors.white),
-                                                        ),
-                                                        Icon(
-                                                          Icons.edit,
-                                                          color: Colors.white,
-                                                          size: 20,
-                                                        )
-                                                      ],
+                                    if (Test.bool.value)
+                                      // Blurred background
+                                      BackdropFilter(
+                                        filter: ImageFilter.blur(
+                                            sigmaX: 0.3, sigmaY: 0.3),
+                                        child: Container(
+                                          color: Colors.black.withOpacity(
+                                              0.5), // Adjust opacity as needed
+                                        ),
+                                      ),
+                                    Test.temp.value == index && Test.bool.value
+                                        ? Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 5),
+                                            child: Container(
+                                              width: 110,
+                                              decoration: BoxDecoration(
+                                                  color: Color(0xff383d4e),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10)),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 10,
+                                                        vertical: 10),
+                                                child: Column(
+                                                  children: [
+                                                    GestureDetector(
+                                                      onTap: () {
+                                                        _messageController
+                                                                .text =
+                                                            chat["msg"]
+                                                                .toString();
+                                                        docId = chatDocumentsId[
+                                                            index];
+                                                        Test.changeEditValueAsTrue();
+                                                        TextFieldOptionManage
+                                                            .setFalse();
+                                                        Test.dissmissPopup();
+                                                      },
+                                                      child: chat['msgType'] ==
+                                                              "text"
+                                                          ? Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .spaceBetween,
+                                                              children: [
+                                                                Text(
+                                                                  "Edit",
+                                                                  style: TextStyle(
+                                                                      fontSize:
+                                                                          10.sp,
+                                                                      color: Colors
+                                                                          .white),
+                                                                ),
+                                                                Icon(
+                                                                  Icons.edit,
+                                                                  color: Colors
+                                                                      .white,
+                                                                  size: 20,
+                                                                )
+                                                              ],
+                                                            )
+                                                          : SizedBox(),
                                                     ),
-                                                  ),
-                                                  GestureDetector(
-                                                    onTap: () {
-                                                      Clipboard.setData(
-                                                          ClipboardData(
-                                                              text: chat["msg"]
-                                                                  .toString()));
-                                                      Test.dissmissPopup();
-                                                    },
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: [
-                                                        Text(
-                                                          "Copy",
-                                                          style: TextStyle(
-                                                              fontSize: 10.sp,
-                                                              color:
-                                                                  Colors.white),
-                                                        ),
-                                                        Icon(
-                                                          Icons.copy_rounded,
-                                                          color: Colors.white,
-                                                          size: 20,
-                                                        )
-                                                      ],
+                                                    SizedBox(
+                                                      height: 10,
                                                     ),
-                                                  ),
-                                                  GestureDetector(
-                                                    onTap: () {
-                                                      FirebaseFirestore.instance
-                                                          .collection(
-                                                              "chatRoom")
-                                                          .doc(widget.roomId)
-                                                          .collection("chats")
-                                                          .doc(chatDocumentsId[
-                                                              index])
-                                                          .delete();
-                                                      Test.dissmissPopup();
-                                                    },
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: [
-                                                        Text(
-                                                          "Unsend",
-                                                          style: TextStyle(
-                                                              fontSize: 10.sp,
-                                                              color:
-                                                                  Colors.red),
-                                                        ),
-                                                        Icon(
-                                                          Icons
-                                                              .delete_outline_rounded,
-                                                          color: Colors.red,
-                                                          size: 20,
-                                                        )
-                                                      ],
+                                                    GestureDetector(
+                                                      onTap: () {
+                                                        Clipboard.setData(
+                                                            ClipboardData(
+                                                                text: chat[
+                                                                        "msg"]
+                                                                    .toString()));
+                                                        Test.dissmissPopup();
+                                                      },
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        children: [
+                                                          Text(
+                                                            "Copy",
+                                                            style: TextStyle(
+                                                                fontSize: 10.sp,
+                                                                color: Colors
+                                                                    .white),
+                                                          ),
+                                                          Icon(
+                                                            Icons.copy_rounded,
+                                                            color: Colors.white,
+                                                            size: 20,
+                                                          )
+                                                        ],
+                                                      ),
                                                     ),
-                                                  ),
-                                                ],
+                                                    SizedBox(
+                                                      height: 10,
+                                                    ),
+                                                    GestureDetector(
+                                                      onTap: () {
+                                                        FirebaseFirestore
+                                                            .instance
+                                                            .collection(
+                                                                "chatRoom")
+                                                            .doc(widget.roomId)
+                                                            .collection("chats")
+                                                            .doc(
+                                                                chatDocumentsId[
+                                                                    index])
+                                                            .delete();
+                                                        Test.dissmissPopup();
+                                                      },
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        children: [
+                                                          Text(
+                                                            "Unsend",
+                                                            style: TextStyle(
+                                                                fontSize: 10.sp,
+                                                                color:
+                                                                    Colors.red),
+                                                          ),
+                                                          Icon(
+                                                            Icons
+                                                                .delete_outline_rounded,
+                                                            color: Colors.red,
+                                                            size: 20,
+                                                          )
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                             ),
+                                          )
+                                        : SizedBox(),
+                                  ],
+                                );
+                              },
+                            )
+                          : MsgContainer(
+                              msgType: chat['msgType'],
+                              isMe: isMe,
+                              msg: chat["msg"].toString());
+                    },
+                  );
+                },
+              )),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 2.w),
+                child: Obx(() {
+                  return RecordHelper.isRecording.value == true
+                      ? Container(
+                          height: 7.h,
+                          decoration: BoxDecoration(
+                              color: const Color(0xff3D4354),
+                              borderRadius: BorderRadius.circular(20)),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              IconButton(
+                                  onPressed: () {
+                                    RecordHelper.stopRecording();
+                                  },
+                                  icon: const Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                  )),
+                              SizedBox(
+                                  width: 60.w,
+                                  height: 50,
+                                  child: Lottie.asset(
+                                      "asset/lottie/sound_waves.json",
+                                      repeat: true,
+                                      height: 70,
+                                      fit: BoxFit.fill)),
+                              IconButton(
+                                  onPressed: () {
+                                    RecordHelper.stopRecording();
+                                    RecordHelper.uploadRecordingToFirebase(
+                                        widget.roomId);
+                                  },
+                                  icon: const Icon(
+                                    Icons.arrow_upward,
+                                    color: Colors.white,
+                                    size: 30,
+                                  ))
+                            ],
+                          ),
+                        )
+                      : TextField(
+                          onTap: () {
+                            Test.dissmissPopup();
+                          },
+                          onChanged: (value) {
+                            if (value == "") {
+                              TextFieldOptionManage.setTrue();
+                            } else {
+                              TextFieldOptionManage.setFalse();
+                            }
+                          },
+                          controller: _messageController,
+                          onSubmitted: (value) async {
+                            if (_messageController.text != "") {
+                              _scrollController.animateTo(
+                                  _scrollController.position.maxScrollExtent,
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.bounceOut);
+
+                              await chatServices.sendChat(
+                                  roomId: widget.roomId,
+                                  message: _messageController.text.trim());
+                              _messageController.clear();
+                              TextFieldOptionManage.setTrue();
+                            }
+                          },
+                          style:
+                              TextStyle(color: Colors.white, fontSize: 12.sp),
+                          decoration: InputDecoration(
+                              suffixIcon: Obx(
+                                () {
+                                  return TextFieldOptionManage.show.value ==
+                                          true
+                                      ? SizedBox(
+                                          width: 150,
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              IconButton(
+                                                onPressed: () async {
+                                                  XFile? file =
+                                                      await picker.pickImage(
+                                                          source: ImageSource
+                                                              .gallery);
+                                                  image = File(file!.path);
+                                                  if (image != null) {
+                                                    Get.to(() => ImageScreen(
+                                                          image: image,
+                                                          roomId: widget.roomId,
+                                                        ));
+                                                  }
+                                                },
+                                                icon: const Icon(
+                                                  Icons
+                                                      .photo_camera_back_outlined,
+                                                  color: Color(0xff9398A7),
+                                                  size: 30,
+                                                ),
+                                              ),
+                                              GestureDetector(
+                                                onTap: () {
+                                                  RecordHelper.startRecording();
+                                                },
+                                                child: const Icon(
+                                                  Icons.mic,
+                                                  size: 30,
+                                                  color: Color(0xff9398A7),
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                width: 7,
+                                              )
+                                            ],
                                           ),
                                         )
-                                      : SizedBox(),
-                                ],
-                              );
-                            },
-                          )
-                        : MsgContainer(
-                            msgType: chat['msgType'],
-                            isMe: isMe,
-                            msg: chat["msg"].toString());
-                  },
-                );
-              },
-            )),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 2.w),
-              child: Obx(() {
-                return RecordHelper.isRecording.value == true
-                    ? Container(
-                        height: 7.h,
-                        decoration: BoxDecoration(
-                            color: const Color(0xff3D4354),
-                            borderRadius: BorderRadius.circular(20)),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            IconButton(
-                                onPressed: () {
-                                  RecordHelper.stopRecording();
-                                },
-                                icon: const Icon(
-                                  Icons.delete,
-                                  color: Colors.red,
-                                )),
-                            SizedBox(
-                                width: 60.w,
-                                height: 50,
-                                child: Lottie.asset(
-                                    "asset/lottie/sound_waves.json",
-                                    repeat: true,
-                                    height: 70,
-                                    fit: BoxFit.fill)),
-                            IconButton(
-                                onPressed: () {
-                                  RecordHelper.stopRecording();
-                                  RecordHelper.uploadRecordingToFirebase(
-                                      widget.roomId);
-                                },
-                                icon: const Icon(
-                                  Icons.arrow_upward,
-                                  color: Colors.white,
-                                  size: 30,
-                                ))
-                          ],
-                        ),
-                      )
-                    : TextField(
-                        onChanged: (value) {
-                          if (value == "") {
-                            TextFieldOptionManage.setTrue();
-                          } else {
-                            TextFieldOptionManage.setFalse();
-                          }
-                        },
-                        controller: _messageController,
-                        onSubmitted: (value) async {
-                          if (_messageController.text != "") {
-                            _scrollController.animateTo(
-                                _scrollController.position.maxScrollExtent,
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.bounceOut);
+                                      : GestureDetector(
+                                          onTap: () async {
+                                            if (Test.isEdit.value == false) {
+                                              if (_messageController.text !=
+                                                  "") {
+                                                _scrollController.animateTo(
+                                                    _scrollController.position
+                                                        .maxScrollExtent,
+                                                    duration: const Duration(
+                                                        milliseconds: 300),
+                                                    curve: Curves.bounceOut);
 
-                            await chatServices.sendChat(
-                                roomId: widget.roomId,
-                                message: _messageController.text.trim());
-                            _messageController.clear();
-                            TextFieldOptionManage.setTrue();
-                          }
-                        },
-                        style: TextStyle(color: Colors.white, fontSize: 12.sp),
-                        decoration: InputDecoration(
-                            suffixIcon: Obx(
-                              () {
-                                return TextFieldOptionManage.show.value == true
-                                    ? SizedBox(
-                                        width: 150,
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            IconButton(
-                                              onPressed: () async {
-                                                XFile? file =
-                                                    await picker.pickImage(
-                                                        source: ImageSource
-                                                            .gallery);
-                                                image = File(file!.path);
-                                                if (image != null) {
-                                                  Get.to(() => ImageScreen(
-                                                        image: image,
-                                                        roomId: widget.roomId,
-                                                      ));
-                                                }
-                                              },
-                                              icon: const Icon(
-                                                Icons
-                                                    .photo_camera_back_outlined,
-                                                color: Color(0xff9398A7),
-                                                size: 30,
-                                              ),
-                                            ),
-                                            GestureDetector(
-                                              onTap: () {
-                                                RecordHelper.startRecording();
-                                              },
-                                              child: const Icon(
-                                                Icons.mic,
-                                                size: 30,
-                                                color: Color(0xff9398A7),
-                                              ),
-                                            ),
-                                            const SizedBox(
-                                              width: 7,
-                                            )
-                                          ],
-                                        ),
-                                      )
-                                    : GestureDetector(
-                                        onTap: () async {
-                                          if (Test.isEdit.value == false) {
-                                            if (_messageController.text != "") {
-                                              _scrollController.animateTo(
-                                                  _scrollController
-                                                      .position.maxScrollExtent,
-                                                  duration: const Duration(
-                                                      milliseconds: 300),
-                                                  curve: Curves.bounceOut);
-
-                                              await chatServices.sendChat(
-                                                  roomId: widget.roomId,
-                                                  message: _messageController
-                                                      .text
-                                                      .trim());
-                                              _messageController.clear();
-                                              TextFieldOptionManage.setTrue();
+                                                await chatServices.sendChat(
+                                                    roomId: widget.roomId,
+                                                    message: _messageController
+                                                        .text
+                                                        .trim());
+                                                _messageController.clear();
+                                                TextFieldOptionManage.setTrue();
+                                              }
+                                            } else {
+                                              if (_messageController.text !=
+                                                  "") {
+                                                await chatServices.updateChat(
+                                                    roomId: widget.roomId,
+                                                    message:
+                                                        _messageController.text,
+                                                    msgId: docId);
+                                                _messageController.clear();
+                                                TextFieldOptionManage.setTrue();
+                                              }
                                             }
-                                          } else {
-                                            if (_messageController.text != "") {
-                                              await chatServices.updateChat(
-                                                  roomId: widget.roomId,
-                                                  message:
-                                                      _messageController.text,
-                                                  msgId: docId);
-                                              _messageController.clear();
-                                              TextFieldOptionManage.setTrue();
-                                            }
-                                          }
-                                        },
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 20),
-                                          child: Text(
-                                            "Send",
-                                            style: TextStyle(
-                                                color: Colors.purpleAccent,
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 11.sp),
-                                          ),
-                                        ));
-                              },
-                            ),
-                            prefixIcon: Padding(
-                              padding: EdgeInsets.only(
-                                top: 0.6.h,
-                                bottom: 0.6.h,
-                                left: 1.w,
+                                          },
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 20),
+                                            child: Text(
+                                              "Send",
+                                              style: TextStyle(
+                                                  color: Colors.purpleAccent,
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 11.sp),
+                                            ),
+                                          ));
+                                },
                               ),
-                              child: GestureDetector(
-                                onTap: () async {
-                                  XFile? file = await picker.pickImage(
-                                      source: ImageSource.camera);
-                                  image = File(file!.path);
-                                  if (image != null) {
-                                    Get.to(() => ImageScreen(
-                                          image: image,
-                                          roomId: widget.roomId,
-                                        ));
-                                  }
-                                },
-                                child: const CircleAvatar(
-                                  radius: 5,
-                                  backgroundColor: Color(0xff7a8194),
-                                  child: Center(
-                                      child: Icon(
-                                    Icons.camera_alt_outlined,
-                                    color: Color(0xff1c222e),
-                                  )),
+                              prefixIcon: Padding(
+                                padding: EdgeInsets.only(
+                                  top: 0.6.h,
+                                  bottom: 0.6.h,
+                                  left: 1.w,
+                                ),
+                                child: GestureDetector(
+                                  onTap: () async {
+                                    XFile? file = await picker.pickImage(
+                                        source: ImageSource.camera);
+                                    image = File(file!.path);
+                                    if (image != null) {
+                                      Get.to(() => ImageScreen(
+                                            image: image,
+                                            roomId: widget.roomId,
+                                          ));
+                                    }
+                                  },
+                                  child: const CircleAvatar(
+                                    radius: 5,
+                                    backgroundColor: Color(0xff7a8194),
+                                    child: Center(
+                                        child: Icon(
+                                      Icons.camera_alt_outlined,
+                                      color: Color(0xff1c222e),
+                                    )),
+                                  ),
                                 ),
                               ),
-                            ),
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(2.5.h),
-                                borderSide: const BorderSide(
-                                    color: Colors.transparent)),
-                            focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(2.5.h),
-                                borderSide: const BorderSide(
-                                    color: Colors.transparent)),
-                            filled: true,
-                            fillColor: const Color(0xff3D4354)),
-                      );
-              }),
-            ),
-            SizedBox(
-              height: 3.h,
-            ),
-          ],
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(2.5.h),
+                                  borderSide: const BorderSide(
+                                      color: Colors.transparent)),
+                              focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(2.5.h),
+                                  borderSide: const BorderSide(
+                                      color: Colors.transparent)),
+                              filled: true,
+                              fillColor: const Color(0xff3D4354)),
+                        );
+                }),
+              ),
+              SizedBox(
+                height: 3.h,
+              ),
+            ],
+          ),
         ),
       ),
     );
