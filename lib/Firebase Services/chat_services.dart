@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:chatvibe/Controllers/image_send_indicator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -35,7 +36,8 @@ class ChatServices {
       "DateTime": DateTime.now(),
       "senderId": box.read("uId"),
       "msgType": "text",
-      "read": false
+      "read": false,
+      "like": [],
     });
   }
 
@@ -71,12 +73,30 @@ class ChatServices {
           "DateTime": date,
           "senderId": myId,
           "msgType": "image",
-          "read": false
+          "read": false,
+          'like': [],
         });
         ImageSendIndicator.isLoading();
 
         Get.back();
       },
     );
+  }
+
+  static Future updateLastChatDate(
+      {required String frdId, required String myId}) async {
+    // FirebaseFirestore.instance
+    //     .collection("chatRoom")
+    //     .doc(docId)
+    //     .update({"LastChat": DateTime.now()});
+
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(myId)
+        .collection("friends")
+        .doc(frdId)
+        .update({
+      "lastChat": DateTime.now(),
+    });
   }
 }

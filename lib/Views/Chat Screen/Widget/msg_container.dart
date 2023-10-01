@@ -10,10 +10,12 @@ class MsgContainer extends StatefulWidget {
       {super.key,
       required this.isMe,
       required this.msg,
-      required this.msgType});
+      required this.msgType,
+      required this.isLike});
   final bool isMe;
   final String msgType;
   final String msg;
+  final bool isLike;
 
   @override
   State<MsgContainer> createState() => _MsgContainerState();
@@ -28,52 +30,81 @@ class _MsgContainerState extends State<MsgContainer> {
       children: [
         widget.msgType == "text"
             ? Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: widget.isMe
-                          ? const Color(0xff7A8194)
-                          : const Color(0xff373E4E),
-                      borderRadius: BorderRadius.circular(15)),
-                  child: Padding(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 3.w, vertical: 1.5.h),
-                      child: Text(
-                        widget.msg,
-                        style: const TextStyle(color: Colors.white),
-                      )),
+                padding: EdgeInsets.only(
+                    right: widget.isMe ? 3.w : 30.w,
+                    left: widget.isMe ? 30.w : 15.w,
+                    bottom: 15),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                          color: widget.isMe
+                              ? const Color(0xff7A8194)
+                              : const Color(0xff373E4E),
+                          borderRadius: BorderRadius.circular(15)),
+                      child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 3.w, vertical: 1.5.h),
+                          child: Text(
+                            widget.msg,
+                            style: const TextStyle(color: Colors.white),
+                          )),
+                    ),
+                    widget.isLike
+                        ? const Positioned(
+                            bottom: -8,
+                            left: 7,
+                            child: Icon(Icons.favorite,
+                                color: Colors.red, size: 18),
+                          )
+                        : const SizedBox(),
+                  ],
                 ),
               )
             : widget.msgType == "image"
                 ? Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 5),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: CachedNetworkImage(
-                        imageUrl: widget.msg,
-                        height: 160,
-                        width: 120,
-                        progressIndicatorBuilder:
-                            (context, url, downloadProgress) {
-                          return SizedBox(
+                    padding: EdgeInsets.only(bottom: 15, right: 3.w, left: 3.w),
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: CachedNetworkImage(
+                            imageUrl: widget.msg,
                             height: 160,
                             width: 120,
-                            child: Shimmer.fromColors(
-                              baseColor: Colors.black38,
-                              highlightColor: Colors.white10,
-                              child: Container(
+                            progressIndicatorBuilder:
+                                (context, url, downloadProgress) {
+                              return SizedBox(
                                 height: 160,
                                 width: 120,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    color: Colors.white),
-                              ),
-                            ),
-                          );
-                        },
-                        errorWidget: (context, url, error) => Icon(Icons.error),
-                      ),
+                                child: Shimmer.fromColors(
+                                  baseColor: Colors.black38,
+                                  highlightColor: Colors.white10,
+                                  child: Container(
+                                    height: 160,
+                                    width: 120,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(20),
+                                        color: Colors.white),
+                                  ),
+                                ),
+                              );
+                            },
+                            errorWidget: (context, url, error) =>
+                                Icon(Icons.error),
+                          ),
+                        ),
+                        widget.isLike
+                            ? Positioned(
+                                bottom: -8,
+                                left: 7,
+                                child: Icon(Icons.favorite,
+                                    color: Colors.red, size: 20),
+                              )
+                            : SizedBox(),
+                      ],
                     ),
                   )
                 : widget.msgType == "mp3"

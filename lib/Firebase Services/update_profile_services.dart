@@ -1,7 +1,7 @@
 import 'package:chatvibe/Controllers/Friends_data_controller.dart';
 import 'package:chatvibe/Controllers/profile_data_controller.dart';
 import 'package:chatvibe/Views/CommonWidget/error_message.dart';
-import 'package:chatvibe/Views/home_screen.dart';
+import 'package:chatvibe/Views/Home%20Screen/home_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

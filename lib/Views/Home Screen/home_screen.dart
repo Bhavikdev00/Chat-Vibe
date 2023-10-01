@@ -3,6 +3,7 @@ import 'package:chatvibe/Controllers/count_unread_message.dart';
 import 'package:chatvibe/Controllers/profile_data_controller.dart';
 import 'package:chatvibe/Firebase%20Services/chat_services.dart';
 import 'package:chatvibe/Views/Chat%20Screen/chat_screen.dart';
+import 'package:chatvibe/Views/Home%20Screen/Widget/sheemer_container.dart';
 import 'package:chatvibe/Views/notification_screen.dart';
 import 'package:chatvibe/Views/profile_screen.dart';
 import 'package:chatvibe/Views/search_screen.dart';
@@ -13,7 +14,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:lottie/lottie.dart';
 import 'package:sizer/sizer.dart';
 
-import '../Controllers/online_friends_data_controller.dart';
+import '../../Controllers/online_friends_data_controller.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -36,7 +37,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     friends = FirebaseFirestore.instance
@@ -74,7 +74,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         return Future.delayed(
           const Duration(seconds: 1),
           () {
-            print("Refresh");
             friendsDataController.getFriendsData();
             setState(() {});
           },
@@ -90,12 +89,18 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 padding: EdgeInsets.symmetric(horizontal: 1.5.w),
                 child: Row(
                   children: [
-                    Text(
-                      "Messages",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22.sp),
+                    GestureDetector(
+                      onTap: () {
+                        friendsDataController.getFriendsData();
+                        setState(() {});
+                      },
+                      child: Text(
+                        "Messages",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 22.sp),
+                      ),
                     ),
                     const Spacer(),
                     IconButton(
@@ -140,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       builder: (controller) {
                         return controller.isloading
                             ? const Center(
-                                child: CircularProgressIndicator(),
+                                child: ShemmerContainer(),
                               )
                             : controller.friendDataList.isEmpty
                                 ? Lottie.asset("asset/lottie/chat-bot.json",
@@ -164,6 +169,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                                 .set({
                                               "firstUid": box.read("uId"),
                                               "secondUid": frd["uId"],
+                                              "LastChat": DateTime.now(),
                                             });
                                           }
 
@@ -194,12 +200,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                           style: TextStyle(
                                               color: Colors.white,
                                               fontSize: 13.sp),
-                                        ),
-                                        subtitle: Text(
-                                          "Hy",
-                                          style: TextStyle(
-                                              color: Colors.white54,
-                                              fontSize: 11.sp),
                                         ),
                                       );
                                     },

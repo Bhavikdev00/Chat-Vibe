@@ -31,6 +31,7 @@ class FriendsDataController extends GetxController {
       }
     }
     isloading = false;
+    print(box.read("uId"));
     update();
   }
 }

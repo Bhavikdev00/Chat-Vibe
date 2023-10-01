@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:chatvibe/Views/Authentication/signin_screen.dart';
-import 'package:chatvibe/Views/home_screen.dart';
+import 'package:chatvibe/Views/Home%20Screen/home_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

@@ -1,6 +1,4 @@
 import 'dart:core';
-import 'dart:core';
-import 'dart:ffi';
 import 'dart:io';
 import 'dart:ui';
 
@@ -45,6 +43,14 @@ class _ChatScreenState extends State<ChatScreen> {
   ScrollController _scrollController = ScrollController();
   FirebaseStorage storage = FirebaseStorage.instance;
   String docId = "";
+
+  @override
+  void dispose() {
+    super.dispose();
+    ChatServices.updateLastChatDate(
+        myId: box.read("uId"), frdId: widget.frdUId);
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -131,13 +137,23 @@ class _ChatScreenState extends State<ChatScreen> {
                                 return Column(
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
-                                    InkResponse(
+                                    GestureDetector(
                                       onLongPress: () {
                                         Test.changeValue(index);
+                                      },
+                                      onDoubleTap: () {
+                                        HandleLikeEvent.handleLike(
+                                            l: chat['like'],
+                                            uId: box.read("uId"),
+                                            docId: chatDocumentsId[index],
+                                            roomId: widget.roomId);
                                       },
                                       child: MsgContainer(
                                           msgType: chat['msgType'],
                                           isMe: isMe,
+                                          isLike: HandleLikeEvent.checkLike(
+                                              list: chat['like'],
+                                              uId: box.read("uId")),
                                           msg: chat["msg"].toString()),
                                     ),
                                     if (Test.bool.value)
@@ -230,7 +246,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                                                 color: Colors
                                                                     .white),
                                                           ),
-                                                          Icon(
+                                                          const Icon(
                                                             Icons.copy_rounded,
                                                             color: Colors.white,
                                                             size: 20,
@@ -238,7 +254,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                                         ],
                                                       ),
                                                     ),
-                                                    SizedBox(
+                                                    const SizedBox(
                                                       height: 10,
                                                     ),
                                                     GestureDetector(
@@ -267,7 +283,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                                                 color:
                                                                     Colors.red),
                                                           ),
-                                                          Icon(
+                                                          const Icon(
                                                             Icons
                                                                 .delete_outline_rounded,
                                                             color: Colors.red,
@@ -289,6 +305,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           : MsgContainer(
                               msgType: chat['msgType'],
                               isMe: isMe,
+                              isLike: false,
                               msg: chat["msg"].toString());
                     },
                   );
@@ -531,5 +548,30 @@ class Test {
 
   static void changeEditValueAsFalse() {
     isEdit.value = false;
+  }
+}
+
+class HandleLikeEvent {
+  static Future handleLike(
+      {required List l,
+      required String uId,
+      required String docId,
+      required String roomId}) async {
+    List ll = l;
+    if (ll.contains(uId)) {
+      ll.remove(uId);
+    } else {
+      ll.add(uId);
+    }
+    await FirebaseFirestore.instance
+        .collection("chatRoom")
+        .doc(roomId)
+        .collection("chats")
+        .doc(docId)
+        .update({'like': ll});
+  }
+
+  static bool checkLike({required List list, required String uId}) {
+    return list.contains(uId);
   }
 }
