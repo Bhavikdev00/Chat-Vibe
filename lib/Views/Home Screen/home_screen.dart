@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatvibe/Controllers/Friends_data_controller.dart';
 import 'package:chatvibe/Controllers/count_unread_message.dart';
 import 'package:chatvibe/Controllers/profile_data_controller.dart';
@@ -12,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:lottie/lottie.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../Controllers/online_friends_data_controller.dart';
@@ -184,15 +186,41 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
                                           // print(result);
                                         },
-                                        leading: CircleAvatar(
-                                            radius: 3.5.h,
-                                            backgroundImage: frd['profile'] !=
-                                                    ""
-                                                ? NetworkImage(
-                                                    "${frd['profile']}")
-                                                : const AssetImage(
-                                                        "asset/images/profile.jpg")
-                                                    as ImageProvider),
+                                        leading: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(120),
+                                          child: CachedNetworkImage(
+                                              width: 50,
+                                              height: 50,
+                                              fit: BoxFit.fill,
+                                              imageUrl: "${frd['profile']}",
+                                              progressIndicatorBuilder:
+                                                  (context, url,
+                                                      downloadProgress) {
+                                                return SizedBox(
+                                                  child: Shimmer.fromColors(
+                                                    baseColor: Colors.black38,
+                                                    highlightColor:
+                                                        Colors.white10,
+                                                    child: Container(
+                                                      height: 60,
+                                                      width: 60,
+                                                      decoration: BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(20),
+                                                          color: Colors.white),
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              errorWidget:
+                                                  (context, url, error) =>
+                                                      Image.asset(
+                                                        "asset/images/profile.jpg",
+                                                        fit: BoxFit.fill,
+                                                      )),
+                                        ),
                                         contentPadding: EdgeInsets.only(
                                             left: 2.w, top: 2.5.h),
                                         title: Text(
