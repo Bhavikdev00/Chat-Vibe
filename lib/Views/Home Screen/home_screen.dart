@@ -5,6 +5,7 @@ import 'package:chatvibe/Controllers/profile_data_controller.dart';
 import 'package:chatvibe/Firebase%20Services/chat_services.dart';
 import 'package:chatvibe/Views/Chat%20Screen/chat_screen.dart';
 import 'package:chatvibe/Views/Home%20Screen/Widget/sheemer_container.dart';
+import 'package:chatvibe/Views/Home%20Screen/Widget/show_image_dialog.dart';
 import 'package:chatvibe/Views/notification_screen.dart';
 import 'package:chatvibe/Views/profile_screen.dart';
 import 'package:chatvibe/Views/search_screen.dart';
@@ -158,7 +159,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                     itemBuilder: (context, index) {
                                       final frd =
                                           controller.friendDataList[index];
-                                      return ListTile(
+                                      return GestureDetector(
                                         onTap: () async {
                                           Map result = await ChatServices
                                               .isChatRoomExist(
@@ -186,48 +187,34 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
                                           // print(result);
                                         },
-                                        leading: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(120),
-                                          child: CachedNetworkImage(
-                                              width: 50,
-                                              height: 50,
-                                              fit: BoxFit.fill,
-                                              imageUrl: "${frd['profile']}",
-                                              progressIndicatorBuilder:
-                                                  (context, url,
-                                                      downloadProgress) {
-                                                return SizedBox(
-                                                  child: Shimmer.fromColors(
-                                                    baseColor: Colors.black38,
-                                                    highlightColor:
-                                                        Colors.white10,
-                                                    child: Container(
-                                                      height: 60,
-                                                      width: 60,
-                                                      decoration: BoxDecoration(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(20),
-                                                          color: Colors.white),
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                              errorWidget:
-                                                  (context, url, error) =>
-                                                      Image.asset(
-                                                        "asset/images/profile.jpg",
-                                                        fit: BoxFit.fill,
-                                                      )),
-                                        ),
-                                        contentPadding: EdgeInsets.only(
-                                            left: 2.w, top: 2.5.h),
-                                        title: Text(
-                                          "${frd['username']}",
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 13.sp),
+                                        child: ListTile(
+                                          leading: GestureDetector(
+                                            onLongPress: () {
+                                              showImageDialog(
+                                                  imageUrl:
+                                                      "${frd['profile']}");
+                                            },
+                                            child: CircleAvatar(
+                                              backgroundColor: Colors.black26,
+                                              radius: 30,
+                                              backgroundImage: frd['profile'] !=
+                                                      ""
+                                                  ? CachedNetworkImageProvider(
+                                                      "${frd['profile']}",
+                                                    )
+                                                  : const AssetImage(
+                                                          "asset/images/profile.jpg")
+                                                      as ImageProvider,
+                                            ),
+                                          ),
+                                          contentPadding: EdgeInsets.only(
+                                              left: 2.w, top: 2.5.h),
+                                          title: Text(
+                                            "${frd['username']}",
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 13.sp),
+                                          ),
                                         ),
                                       );
                                     },

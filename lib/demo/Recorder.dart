@@ -58,6 +58,7 @@ class RecordHelper {
             .set({
           "msg": downloadUrl,
           "DateTime": date,
+          "like": [],
           "senderId": myId,
           "msgType": "mp3",
           "read": false

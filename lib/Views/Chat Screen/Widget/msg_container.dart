@@ -108,7 +108,20 @@ class _MsgContainerState extends State<MsgContainer> {
                     ),
                   )
                 : widget.msgType == "mp3"
-                    ? VoiceMessage(isMe: widget.isMe, url: "${widget.msg}")
+                    ? Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          VoiceMessage(isMe: widget.isMe, url: "${widget.msg}"),
+                          widget.isLike
+                              ? const Positioned(
+                                  bottom: -5,
+                                  left: 25,
+                                  child: Icon(Icons.favorite,
+                                      color: Colors.red, size: 18),
+                                )
+                              : const SizedBox(),
+                        ],
+                      )
                     : SizedBox(),
       ],
     );

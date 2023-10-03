@@ -1,8 +1,10 @@
 import 'dart:developer';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatvibe/Controllers/profile_data_controller.dart';
 import 'package:chatvibe/Firebase%20Services/auth_services.dart';
 import 'package:chatvibe/Views/CommonWidget/common_button.dart';
+import 'package:chatvibe/Views/Home%20Screen/Widget/show_image_dialog.dart';
 import 'package:chatvibe/Views/edit_profile_screen.dart';
 import 'package:chatvibe/Views/friends_list.dart';
 import 'package:flutter/material.dart';
@@ -283,22 +285,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   left: 0,
                                   right: 0,
                                   top: -7.h,
-                                  child: Container(
-                                      width: 30.w,
-                                      height: 14.h,
-                                      decoration: BoxDecoration(
-                                          image: DecorationImage(
-                                              image: controller.profileData[
-                                                          "profile"] !=
-                                                      ""
-                                                  ? NetworkImage(controller
-                                                      .profileData["profile"])
-                                                  : const AssetImage(
-                                                      "asset/images/profile.jpg",
-                                                    ) as ImageProvider,
-                                              fit: BoxFit.cover),
-                                          shape: BoxShape.circle,
-                                          color: Colors.green)),
+                                  child: Builder(
+                                    builder: (BuildContext context) {
+                                      return GestureDetector(
+                                        onTap: () {
+                                          showImageDialog(
+                                              imageUrl:
+                                                  "${controller.profileData["profile"]}");
+                                        },
+                                        child: Container(
+                                            width: 30.w,
+                                            height: 14.h,
+                                            decoration: BoxDecoration(
+                                                image: DecorationImage(
+                                                    image: controller
+                                                                    .profileData[
+                                                                "profile"] !=
+                                                            ""
+                                                        ? CachedNetworkImageProvider(
+                                                            "${controller.profileData["profile"]}")
+                                                        : const AssetImage(
+                                                            "asset/images/profile.jpg",
+                                                          ) as ImageProvider,
+                                                    fit: BoxFit.cover),
+                                                shape: BoxShape.circle,
+                                                color: Colors.black12)),
+                                      );
+                                    },
+                                  ),
                                 )
                               ],
                             ),
